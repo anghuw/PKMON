@@ -1,0 +1,21 @@
+  # 操作系统
+  .DS_Store
+  Thumbs.db
+
+  # IDE
+  .idea/
+  .vscode/
+  *.iml
+
+  # 构建产物
+  build/
+  .dart_tool/
+  target/
+  *.apk
+
+  # 本地配置与密钥
+  *.local.*
+  application-local.yml
+  .env
+  *.jks
+  *.keystore
