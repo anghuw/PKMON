@@ -1,0 +1,50 @@
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Flutter / Dart 缓存与构建产物
+client/.dart_tool/
+client/.flutter-plugins
+client/.flutter-plugins-dependencies
+client/.pub-cache/
+client/.pub/
+client/build/
+client/coverage/
+client/android/.gradle/
+client/android/local.properties
+client/android/app/debug/
+client/android/app/profile/
+client/android/app/release/
+client/**/GeneratedPluginRegistrant.java
+
+# 后端网页构建产物（只保留占位文件）
+server/src/main/resources/static/*
+!server/src/main/resources/static/.gitkeep
+
+# Java / Maven 构建产物
+server/target/
+*.class
+*.log
+
+# 本地配置与密钥
+*.local.*
+application-local.properties
+application-local.yml
+.env
+.env.*
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+
+# 安装包
+*.apk
+*.aab

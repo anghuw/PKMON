@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The INTERNET permission is required for development. Specifically,
+         the Flutter tool needs it to communicate with the running application
+         to allow setting breakpoints, to provide hot reload, etc.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- 允许明文 HTTP。
+         Android 9（API 28）以后默认禁止 http:// 请求，而演示后端是
+         http://10.0.2.2:4180（明文）。不加这一行，请求会被系统直接拦掉，
+         报错还很不明显。
+
+         只放在 debug 清单里：正式发布不该走明文，等接真正的线上后端时
+         应该换成 https。 -->
+    <application android:usesCleartextTraffic="true"/>
+</manifest>
