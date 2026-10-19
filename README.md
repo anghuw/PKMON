@@ -19,8 +19,8 @@
 
 | 工具 | 要求 | 说明 |
 |---|---|---|
-| JDK | 17 或更高 | 需要 `javac`，只有 JRE 不能构建 |
-| Maven | 3.9+ | 构建后端 |
+| JDK | 17 或更高 | 需要 `javac`，只有 JRE 不能构建；一键脚本会优先使用 `JAVA_HOME` |
+| Maven | 3.9+（可选） | 仓库自带 Maven Wrapper；即使没装 Maven 也能构建 |
 | Flutter | 3.47.6（Dart 3.13.5） | 构建客户端；其他 3.x 版本一般也可 |
 | Android SDK | 任意近期版本 | 只有构建安卓 APK 时需要 |
 | 浏览器 | Chrome / Edge 等 | 网页版演示不需要安卓环境 |
@@ -39,7 +39,52 @@ flutter --version
 
 网页版和后端由**同一个 Spring Boot 服务**托管，演示时对方只需要一个浏览器。
 
-### 1. 构建前端网页
+### 方式 A：一键构建并启动（最省事）
+
+**Windows 下直接双击：**
+
+```text
+scripts\build_and_run.cmd
+```
+
+也可以在 PowerShell 里运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\build_and_run.ps1
+```
+
+脚本会依次完成：
+
+1. 检查 Flutter 和 JDK 17+（优先使用 `JAVA_HOME`）
+2. `flutter pub get` + `flutter build web --release`
+3. 把 `client/build/web/` 复制到 `server/src/main/resources/static/`
+4. 用 Maven（没装则用仓库自带的 `server\mvnw.cmd`）打包后端
+5. **在新窗口启动后端**，等 4180 端口就绪后自动打开浏览器
+
+所以默认情况下，**运行完脚本不需要再单独启动后端**，浏览器会自动打开
+<http://127.0.0.1:4180/>。关掉新弹出的 Java 窗口就等于停止后端。
+
+只构建、不启动：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\build_and_run.ps1 -NoRun
+# 之后手动启动：
+java -jar server\target\pkmon-server-0.1.0.jar
+```
+
+跳过测试、加快构建：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\build_and_run.ps1 -SkipTests
+```
+
+> 第一次运行需要联网下载 Flutter/Maven 依赖，可能花几分钟；之后会快很多。
+> 如果 4180 端口已经有 PKMon 后端在运行，脚本不会重复启动，只打开浏览器；
+> 想测试刚构建的新版本，请先关掉旧的 Java 窗口再运行脚本。
+
+### 方式 B：手动三步
+
+#### 1. 构建前端网页
 
 ```bash
 cd client
@@ -49,7 +94,7 @@ flutter build web --release
 
 产物在 `client/build/web/`。
 
-### 2. 把网页产物放进后端
+#### 2. 把网页产物放进后端
 
 ```bash
 # 从仓库根目录执行（Git Bash / macOS / Linux）
@@ -67,7 +112,7 @@ Copy-Item client/build/web/* server/src/main/resources/static/ -Recurse -Force
 > `server/src/main/resources/static/` 里的网页文件是**构建产物，已被 `.gitignore` 排除**，
 > 不要提交进仓库。仓库里只保留一个 `.gitkeep` 占位。
 
-### 3. 构建并启动后端
+#### 3. 构建并启动后端
 
 ```bash
 cd server
@@ -88,6 +133,9 @@ Tomcat started on port 4180
 >
 > 默认只监听 `127.0.0.1`。真机演示需要监听所有网卡：
 > `java -jar target/pkmon-server-0.1.0.jar --server.address=0.0.0.0`
+>
+> 没有安装 Maven 时，把 `mvn` 换成仓库自带的 wrapper：
+> Windows 用 `.\mvnw.cmd clean package`，Git Bash / Linux / macOS 用 `./mvnw clean package`。
 
 ---
 
@@ -231,6 +279,7 @@ echo
 # 后端：单元测试（判题、幂等、会话隔离等 8 个用例）
 cd server
 mvn test
+# 没装 Maven 时：Windows 用 .\mvnw.cmd test，Git Bash / Linux / macOS 用 ./mvnw test
 
 # 前端：静态分析 + 界面冒烟测试（8 个用例，不需要后端）
 cd client
@@ -266,7 +315,11 @@ PKMON/
 │   ├── src/main/resources/
 │   │   ├── application.properties  # 端口 4180，监听 127.0.0.1
 │   │   └── static/                 # 网页构建产物存放处（构建时生成）
+│   ├── mvnw / mvnw.cmd             # Maven Wrapper（没装 Maven 也能构建）
 │   └── pom.xml
+├── scripts/
+│   ├── build_and_run.ps1           # 一键构建并启动
+│   └── build_and_run.cmd           # Windows 双击入口
 ├── 开发文档/                        # 课程文档（原有）
 └── 参考文档/                        # 课程模板与参考资料（原有）
 ```
@@ -277,6 +330,18 @@ PKMON/
 
 **「连不上后端服务」**
 后端没启动，或端口不是 4180。先在浏览器打开 <http://127.0.0.1:4180/test/hello> 确认。
+
+**一键脚本提示 Java 17+ is required**
+电脑 PATH 上的 `java` 可能是旧版。安装 JDK 17+，并把 `JAVA_HOME` 指向它；
+脚本会优先使用 `JAVA_HOME\bin\java.exe`。
+
+**一键脚本第一次运行很慢**
+第一次要下载 Flutter/Maven 依赖（没装 Maven 时还会下载 Maven 本身），属于正常现象；
+之后会走本地缓存。只想跳过测试可以用 `-SkipTests`。
+
+**运行完脚本后怎么停止后端**
+关掉脚本新弹出的 Java 窗口即可。下次只启动后端不必重新构建：
+`java -jar server\target\pkmon-server-0.1.0.jar`。
 
 **安卓模拟器能打开网页版，但 App 连不上**
 App 用的是 `10.0.2.2:4180`（模拟器访问宿主机的固定别名），确认后端在本机运行。
