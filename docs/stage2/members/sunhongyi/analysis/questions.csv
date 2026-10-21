@@ -1,0 +1,9 @@
+id,问题,影响,责任人,建议,状态
+Q01,认证上下文如何取得 userId（token 校验入口、可用依赖与调用方式）,决定 CaptureService 的身份来源；拿不到就只能用测试替身，无法完成真实用户隔离验证,闫昕,请提供 token 校验入口与本地调试取 token 的步骤；我方只从认证上下文取 userId，不从请求体取,待回复
+Q02,capture 相关表的迁移文件由谁写、编号规则与数据库类型/版本,决定能否落地唯一约束与重启后查询,胡豪,我方提供字段与约束需求（capture_record(user_id,spawn_id)、answer_attempt(user_id,request_id)），迁移由胡豪统一编号,待回复
+Q03,Species 与题库 Question 的建表与初始数据归属（siege_lion、hello_world_001）,无数据则挑战取不到题，只能做纯规则测试,闫昕,建议由题库/图鉴主责提供初始数据脚本，我方只读,待回复
+Q04,开发遭遇 /api/v1/dev/spawns 仅 dev/test 开放，环境判定方式（profile 或配置项）,决定正式环境不暴露模拟入口,胡豪,建议用 Spring profile 控制，配置项命名由胡豪定，我方按名读取,待回复
+Q05,统一 Api 适配层由谁负责（旧 Demo 的 name/question/options.id/success 转换）,旧页面迁移与旧路由保留期限受影响,冉昕霖,建议由网络层主责在适配层转换，我方只提供新字段,待回复
+Q06,收藏概览 /api/v1/collection/summary 的页面字段与调用时机,决定最小收藏查询是否够用,冉昕霖,我方按指南字段实现 collectedSpeciesCount/totalSpeciesCount/captureCount，如页面需要额外字段请提出,待回复
+Q07,旧 Demo 路由（/api/v1/demo/*、X-Demo-Session）的保留期限与下线决定权,决定我是否需要在过渡期兼容两套身份入口,闫昕,建议明确保留到第二阶段结束，期间旧路由独立于新业务,待回复
+Q08,锁顺序“先遭遇后挑战”的落地方案（数据库行锁或唯一约束冲突重试）,决定并发正确提交时只产生一条捕获记录,胡豪,建议以数据库唯一约束为主、冲突时查回已有记录返回，不依赖内存锁,待回复

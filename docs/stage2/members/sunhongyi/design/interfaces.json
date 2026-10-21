@@ -1,0 +1,75 @@
+{
+  "owner": "sunhongyi",
+  "stage": "stage2",
+  "module": "capture",
+  "status": "skeleton",
+  "statusNote": "以下为本人负责端口的候选约定，10/31 前以本人骨架实现为准；未实现前一律标注 implemented=false，不得视为已可用。",
+  "conventions": {
+    "baseUrl": "http://127.0.0.1:4180",
+    "businessPrefix": "/api/v1",
+    "auth": "Authorization: Bearer <token>",
+    "successEnvelope": { "code": 0, "message": "ok", "data": {} },
+    "errorEnvelope": { "code": 40001, "message": "参数错误", "data": null },
+    "fieldCase": "lowerCamelCase",
+    "timeFormat": "UTC ISO 8601"
+  },
+  "interfaces": [
+    {
+      "name": "createDevSpawn",
+      "method": "POST",
+      "path": "/api/v1/dev/spawns",
+      "implemented": false,
+      "availability": "dev/test only",
+      "requestFields": ["regionId", "speciesId"],
+      "responseDataFields": ["spawnId", "regionId", "speciesId", "sourceType", "expiresAt"],
+      "notes": "模拟遭遇来源，页面须标注“模拟遇见攻城狮”；正式环境不得开放。"
+    },
+    {
+      "name": "createChallenge",
+      "method": "POST",
+      "path": "/api/v1/capture/challenge",
+      "implemented": false,
+      "requestFields": ["spawnId"],
+      "responseDataFields": ["challengeId", "spawnId", "speciesId", "speciesName", "questionId", "questionText", "options", "expiresAt"],
+      "optionsShape": [{ "optionId": "A", "text": "选项文本" }],
+      "security": "响应不得包含正确答案字段（correctOptionId 等）。",
+      "errorCodes": [
+        { "code": 40401, "case": "spawn 不存在或不属于当前用户" },
+        { "code": 41001, "case": "spawn 已过期" }
+      ]
+    },
+    {
+      "name": "submitAnswer",
+      "method": "POST",
+      "path": "/api/v1/capture/answer",
+      "implemented": false,
+      "requestFields": ["challengeId", "requestId", "optionId"],
+      "responseDataFields": ["challengeId", "requestId", "result", "captureRecordId", "speciesId"],
+      "resultEnum": ["CORRECT", "WRONG"],
+      "errorCodes": [
+        { "code": 40902, "case": "同一 requestId 不同内容，冲突且不改原记录" },
+        { "code": 41001, "case": "挑战已过期且未成功" },
+        { "code": 40401, "case": "他人资源或不存在" },
+        { "code": 40001, "case": "参数错误（含无效选项）" }
+      ],
+      "notes": "同 requestId 同内容重试返回原结果，请求已处理后再过期仍可读原结果。答对在同一事务创建唯一收录并置 CAPTURED。"
+    },
+    {
+      "name": "getChallengeStatus",
+      "method": "GET",
+      "path": "/api/v1/capture/challenges/{challengeId}",
+      "implemented": false,
+      "responseDataFields": ["challengeId", "status", "captureRecordId", "expiresAt", "lastAttempt"],
+      "statusEnum": ["OPEN", "CAPTURED", "EXPIRED"],
+      "notes": "供“结果待确认”时查询；他人资源 40401。"
+    },
+    {
+      "name": "getCollectionSummary",
+      "method": "GET",
+      "path": "/api/v1/collection/summary",
+      "implemented": false,
+      "responseDataFields": ["collectedSpeciesCount", "totalSpeciesCount", "captureCount"],
+      "notes": "最小收藏查询，供收藏页面重新查询验证真实持久化。"
+    }
+  ]
+}

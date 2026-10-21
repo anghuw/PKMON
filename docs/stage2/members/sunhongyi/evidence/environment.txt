@@ -1,0 +1,89 @@
+环境与基线记录
+作者：孙虹毅
+最后更新：2026-10-21
+说明：本文件只记录实际执行过的操作与实际结果，不写猜测值。命令均在个人电脑执行，
+日志与截图已做脱敏处理，不含 token、口令与真实位置。
+
+====================================================================
+1. 源码基线
+====================================================================
+仓库根目录：D:/develop/PKMON
+远程：https://github.com/saltyfish8210/PKMON.git
+工作分支：design/sunhongyi-stage2（自 origin/main 建立）
+所用源码提交号（完整）：d847572ddaefa30caf38902f10505297be1e0964
+origin/main 当时指向：d847572ddaefa30caf38902f10505297be1e0964
+上传源码提交（c71afce 起为攻城狮版客户端与后端完整源码）：
+  c71afce  feat: 添加攻城狮版客户端与后端完整源码   2026-10-19 18:01:18 +0800
+  2a4f0a2  chore: 添加一键构建脚本与 Maven Wrapper  2026-10-19 18:31:50 +0800
+  d847572  docs: 添加高德地图 SDK 接入指南          2026-10-19 18:39:25 +0800
+仓库根另有未纳入版本管理的个人资料 孙虹毅开发指南.pdf，未提交、不参与构建。
+
+====================================================================
+2. 本机工具链（实测）
+====================================================================
+操作系统：Microsoft Windows 11 专业版（10.0.26200）
+PowerShell：5.1.26100.9711
+Git：git version 2.47.1.windows.1
+JDK：openjdk version "21.0.12.1" 2026-08-18 LTS（Eclipse Temurin 21.0.12.1+1-LTS）
+Maven：Apache Maven 3.9.9（Maven home 指向 IntelliJ IDEA 2025.2.1 自带 maven3）
+Flutter：本机 PATH 中未找到 flutter 命令，常见安装位置亦未检测到；本模块为后端，
+  暂不影响，客户端联调前需补装，届时再记录版本。
+
+====================================================================
+3. 现有后端结构（读取结果，非推测）
+====================================================================
+server/pom.xml：Spring Boot 3.5.7，java.version=17，依赖仅 spring-boot-starter-web 与
+  spring-boot-starter-test；无 JPA/JDBC、无数据库驱动、无认证依赖。
+server/src/main/java/edu/pkmon/demo/:DemoController.java、DemoService.java、PkmonApplication.java
+server/src/main/resources/application.properties：server.address=127.0.0.1，server.port=4180
+server/src/test/java/edu/pkmon/demo/DemoServiceTest.java：8 个用例，使用 Clock.fixed 固定时钟
+现状结论：旧 Demo 为内存态、按 X-Demo-Session 区分身份、无持久化、无认证；
+  edu/pkmon/capture/ 包与 docs/stage2/ 目录在本次基线中均不存在。
+
+====================================================================
+4. 已执行的命令与实际结果
+====================================================================
+[1] git ls-remote --heads https://github.com/saltyfish8210/PKMON.git
+    实际：存在 refs/heads/dev 与 refs/heads/main 两个分支
+[2] git clone 后迁入 D:/develop/PKMON（原目录仅有 PDF，故先克隆到临时目录再移入）
+    实际：仓库文件与 .git 就位，临时目录已删除
+[3] git status --short --branch
+    实际：## main...origin/main，仅 ?? 孙虹毅开发指南.pdf 为未跟踪
+[4] git switch -c design/sunhongyi-stage2 origin/main
+    实际：切出并位于 design/sunhongyi-stage2
+[5] 核对 main 是否含上传源码
+    实际：git log 显示 c71afce/2a4f0a2/d847572 三条提交均在上传日期 2026-10-19
+[6] 建立个人材料目录 docs/stage2/members/sunhongyi/ 及 analysis、design、evidence、ai、
+    handoffs、presentation、final 与两个 diagrams 子目录
+    实际：目录创建成功，本文件所在目录即其一
+
+[7] cd server; mvn -B test
+    预期：BUILD SUCCESS 且测试数不为 0
+    实际：Tests run: 8, Failures: 0, Errors: 0, Skipped: 0；BUILD SUCCESS；
+          耗时 27.955 s，结束时间 2026-10-21T20:34:44+08:00
+    说明：本次为首轮依赖下载，后续同命令应更快。这只能证明旧 Demo 基线可构建，
+          不代表第二阶段业务已实现。
+
+尚未执行：mvn spring-boot:run、/test/hello 探活、注册登录与业务链路。
+原因：本人 capture 模块尚未开始（10/31 foundation 阶段再做）；届时按页补齐实际结果。
+
+====================================================================
+5. 缺项与影响
+====================================================================
+缺项1：数据库类型/版本、迁移编号规则未定（责任人 胡豪）。
+  影响：唯一约束 capture_record(user_id,spawn_id)、answer_attempt(user_id,request_id)
+  无法以真实数据库验证；重启后查询与并发唯一性只能暂用测试替身。
+  可继续：业务分析、图文、接口与 DTO 骨架、纯规则与固定时钟测试。
+缺项2：认证入口（token 校验、本地调试取 token 步骤）未提供（责任人 闫昕）。
+  影响：userId 只能先用测试替身注入，真实用户隔离验证未执行。
+  可继续：以上述替身实现，并在交接记录中标注“模拟”。
+缺项3：Species 与题库初始数据归属未定。
+  影响：挑战取题只能使用自建测试数据。
+缺项4：Flutter 未安装。
+  影响：客户端联调部分无法本机执行；后端接口可用 Invoke-WebRequest 验证。
+
+====================================================================
+6. 下一动作
+====================================================================
+10/25 04:00 前完成 analysis/ 交付（analysis.txt、questions.csv、diagrams/ 图源与导出图），
+并提交本文件作为环境基线；缺项按第 5 节写明，不把阻塞项标为通过。

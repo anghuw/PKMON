@@ -1,0 +1,6 @@
+analysisId,分析对象或规则,设计补充,变更类型,属于哪部分设计,变更理由,是否模拟,对应接口,对应测试
+A-01,Challenge 负责一次问答挑战,增加 CaptureController、CaptureService、ChallengeRepository,新增,控制驱动,Controller 接请求、Service 执行业务与事务、Repository 保存状态，分析图保留业务对象,否,POST /api/v1/capture/challenge,TC-01
+A-02,一次遭遇最多成功捕获一次,capture_record 上 userId+spawnId 唯一约束 + 事务,新增,数据管理,多次点击或网络重试可能并发，仅客户端禁用按钮不足以保证唯一,否,POST /api/v1/capture/answer,TC-05
+A-03,同一业务操作重试不重复结算,answer_attempt 以 user+requestId 唯一，同内容返回原结果、不同内容返回冲突,新增,数据管理,请求超时不等于失败，需可恢复且不可重复发奖,否,POST /api/v1/capture/answer,TC-02
+A-04,答题结果可能暂时未知,界面“结果待确认” + 状态查询接口,新增,人机交互,请求超时先查状态，避免客户端自行发奖,否,GET /api/v1/capture/challenges/{challengeId},TC-06
+A-05,挑战具有有效期,Clock 抽象注入 + 固定时钟测试,新增,控制驱动,过期边界需可重复验证，不能依赖真实时间,否,POST /api/v1/capture/answer,TC-04
