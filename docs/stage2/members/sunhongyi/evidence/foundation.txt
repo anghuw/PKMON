@@ -1,0 +1,141 @@
+骨架与联调记录（阶段键 foundation）
+作者：孙虹毅
+阶段：10/31 foundation（提前于 2026-10-21 完成并实测）
+所读源码提交号：d847572ddaefa30caf38902f10505297be1e0964
+设计成果提交号：48f0b7726fdb907fba39d410d59755b84b4a9948
+
+====================================================================
+一、本次交付内容
+====================================================================
+在 edu/pkmon/capture/ 下落地可编译、可运行的模块骨架，业务规则为真实实现，
+存储为内存替身（明确标注，不冒充真实持久化）。
+
+  domain/    ChallengeStatus、AnswerResult、SpawnSourceType、Spawn、Challenge、
+             AnswerAttempt、CaptureRecord、Question
+  error/     ApiErrorCode、ApiException、ApiExceptionHandler
+  dto/       CaptureDtos（ApiEnvelope 与全部请求/响应 record）
+  port/      QuestionSource、SpeciesCatalog、CurrentUserProvider、
+             FixtureCatalog（固定题库替身）、DevHeaderCurrentUserProvider、
+             UnavailableCurrentUserProvider
+  repository/ 四个仓储接口 + memory/ 四个内存替身
+  service/   SpawnService、CaptureService、CollectionService
+  web/       DevSpawnController、CaptureController、CollectionController
+  config/    CaptureConfig（自动配置，见第三节问题1）
+  resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+
+未修改 server/pom.xml、未修改启动类 PkmonApplication、未修改 client/。
+仅在自有范围内改了 DemoController 的两个路由（见第三节问题2）。
+
+====================================================================
+二、实测结果（真实执行，非推测）
+====================================================================
+[1] 编译与测试
+  命令：cd server && mvn -B test
+  预期：BUILD SUCCESS 且测试数不为 0
+  实际：Tests run: 23, Failures: 0, Errors: 0, Skipped: 0；BUILD SUCCESS
+    其中 edu.pkmon.capture.service.CaptureServiceTest 15 个用例全绿，
+    edu.pkmon.demo.DemoServiceTest 8 个用例全绿（旧用例未被破坏）。
+
+[2] 端到端联调（真实启动服务，端口 4180）
+  命令：java -jar target/pkmon-server-0.1.0.jar
+  请求：见第五节完整记录
+  关键结果：
+    GET  /test/hello                              => 200 hello world
+    POST /api/v1/dev/spawns                       => 200 sourceType=DEV_SIMULATED
+    POST /api/v1/capture/challenge                => 200，响应不含 correctOptionId
+    POST /api/v1/capture/answer （错误选项）       => 200 result=WRONG，captureRecordId=null
+    POST /api/v1/capture/answer （正确选项）       => 200 result=CORRECT + captureRecordId
+    GET  /api/v1/capture/challenges/{id}          => 200 status=CAPTURED，lastAttempt=CORRECT
+    GET  /api/v1/collection/summary               => 200 captureCount=1
+    幂等：同 requestId 同内容                      => 200 与首次完全一致，未新增记录
+    冲突：同 requestId 不同内容                    => 409 / code=40902
+    他人资源                                      => 404 / code=40401，且他人计数为 0
+    缺少身份头                                     => 401 / code=40101
+    已收录后再次挑战                                => 409 / code=40903
+    旧演示路由（/api/v1/demo/sessions、/explore、
+      /capture/challenge）                        => 200，旧功能未被破坏
+
+[3] 与设计的一致性抽查
+  - 判定次序：幂等判定在过期判定之前。用例 TC-11（已处理请求在过期后回放）通过。
+  - 答错不消耗挑战：TC-04 通过，status 保持 OPEN，可换 requestId 重试成功。
+  - 无效选项不消耗挑战且不产生作答记录：TC-05 通过。
+  - 边界：到期前 1 秒可作答、到期当刻拒绝（TC-06a / TC-06b）。
+
+====================================================================
+三、过程中发现的两个真问题（都已处理并需告知相关人）
+====================================================================
+问题1 capture 包不被扫描
+  现象：首轮启动后 POST /api/v1/dev/spawns 返回 404 "No static resource"。
+  原因：@SpringBootApplication 在 edu.pkmon.demo.PkmonApplication，组件扫描范围只有
+    edu.pkmon.demo，不包含 edu.pkmon.capture。启动类主责是胡豪，本模块不能改。
+  处理：本模块以 Spring Boot 自动配置注册自己（CaptureConfig + AutoConfiguration.imports），
+    所有 @Bean 都带 @ConditionalOnMissingBean。若日后启动类改为扫描 edu.pkmon，
+    本模块的 @Bean 会自动让位，不会重复定义。
+  建议：由胡豪决定是改扫描范围（更省事）还是保留自动配置；两条路都已可用。
+
+问题2 旧 DemoController 与新接口路径冲突
+  现象：旧 DemoController 也映射 POST /api/v1/capture/challenge 与 /api/v1/capture/answer，
+    两个控制器同时注册会构成歧义映射，启动即失败。
+  处理：把旧演示的两个路由迁到 /api/v1/demo/capture/challenge 与
+    /api/v1/demo/capture/answer，其余旧路由（/api/v1/demo/sessions、state、explore、reset）不变。
+    迁移后旧流程实测仍 200，未被破坏。
+  影响：客户端若直接调用旧路径，需改这两处（属冉昕霖网络层，已记入 questions.csv Q10）。
+
+====================================================================
+四、模拟与未执行（不得当作已通过）
+====================================================================
+模拟（已实现，但不是真实能力）：
+  存储：repository/memory/ 下的实现是内存替身，进程重启即丢失。
+  题库与物种：FixtureCatalog 是固定替身，只有 siege_lion 与 hello_world_001。
+  身份：DevHeaderCurrentUserProvider 读 X-Dev-User 头，是开发期替身，不是认证。
+  因此 collection/summary 的 totalSpeciesCount 实测为 1（替身目录条目数），
+    与设计样例中的 3 不同；接入真实图鉴后应为实际条目数。
+
+未执行（依赖未到位，不标通过）：
+  TC-07 并发正确提交只产生一条收录 —— 需真实数据库唯一约束；当前内存替身用
+    putIfAbsent 模拟，能证明业务路径，不能证明数据库约束。
+  TC-08 重启后仍可查询 —— 内存存储重启即丢，必然失败，属预期；接真库后必须补测。
+  TC-09 的“真实认证下隔离” —— 目前隔离靠传入 userId 校验，未经真实 token 验证。
+  事务边界 —— 工程无 spring-tx，submit 未加事务注解（见 design.txt 缺项1）。
+  客户端联调 —— 本机未安装 Flutter，未执行。
+
+====================================================================
+五、端到端记录（原始输出摘录）
+====================================================================
+[1] GET /test/hello => 200
+     hello world PKMon Spring Boot backend is running.
+[2] POST /api/v1/dev/spawns => 200
+     {"code":0,"message":"ok","data":{"spawnId":"15dddf9e-...","regionId":"library_entrance",
+      "speciesId":"siege_lion","sourceType":"DEV_SIMULATED","expiresAt":"2026-10-21T13:09:39.507769700Z"}}
+[3] POST /api/v1/capture/challenge => 200
+     {"code":0,...,"speciesName":"攻城狮","questionId":"hello_world_001",
+      "questionText":"执行 print(\"hello world\") 之后，控制台会输出什么？",
+      "options":[{"optionId":"A","text":"hello world"},...]}
+     含 correctOptionId ? False
+[4] POST /api/v1/capture/answer （B） => 200
+     {"code":0,...,"result":"WRONG","captureRecordId":null,"speciesId":"siege_lion"}
+[5] POST /api/v1/capture/answer （A） => 200
+     {"code":0,...,"result":"CORRECT","captureRecordId":"6edbb64b-...","speciesId":"siege_lion"}
+[6] GET /api/v1/capture/challenges/{id} => 200
+     {"status":"CAPTURED","captureRecordId":"6edbb64b-...","lastAttempt":{"requestId":"req-e2e-2","result":"CORRECT"}}
+[7] GET /api/v1/collection/summary => 200
+     {"collectedSpeciesCount":1,"totalSpeciesCount":1,"captureCount":1}
+[8] 幂等重放 => 200，captureRecordId 与首次相同
+[9] 同 requestId 换选项 => 409 {"code":40902,"message":"同一 requestId 已提交过不同选项"}
+[10] 他人查询该挑战 => 404 {"code":40401}
+     他人 summary => 200 {"collectedSpeciesCount":0,"captureCount":0}
+[11] 不带 X-Dev-User => 401 {"code":40101}
+[12] 已收录后再挑战 => 409 {"code":40903,"message":"该遭遇已收录，不能重复挑战"}
+[13] 旧演示：POST /api/v1/demo/sessions => 200；/api/v1/demo/explore => 200；
+     /api/v1/demo/capture/challenge => 200
+
+完整控制台记录：本机临时目录 pkmon-e2e-result.txt（未入版本库，因含本机路径）。
+
+====================================================================
+六、下一动作
+====================================================================
+1. 催促胡豪：事务与持久化依赖（决定 TC-07/TC-08 能否落地）、迁移编号、
+   以及问题1 的扫描范围或自动配置方案二选一。
+2. 催促闫昕：认证入口与题库初始数据（决定 TC-09 真实性与题目来源）。
+3. 通知冉昕霖：旧演示 capture 路由已迁移到 /api/v1/demo/capture/*，需改两处调用。
+4. 接真库后补 TC-07 与 TC-08，并把 interfaces.json 的 storageSimulated 置为 false。

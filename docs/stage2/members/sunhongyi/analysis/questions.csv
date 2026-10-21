@@ -7,3 +7,5 @@ Q05,统一 Api 适配层由谁负责（旧 Demo 的 name/question/options.id/suc
 Q06,收藏概览 /api/v1/collection/summary 的页面字段与调用时机,决定最小收藏查询是否够用,冉昕霖,我方按指南字段实现 collectedSpeciesCount/totalSpeciesCount/captureCount，如页面需要额外字段请提出,待回复
 Q07,旧 Demo 路由（/api/v1/demo/*、X-Demo-Session）的保留期限与下线决定权,决定我是否需要在过渡期兼容两套身份入口,闫昕,建议明确保留到第二阶段结束，期间旧路由独立于新业务,待回复
 Q08,锁顺序“先遭遇后挑战”的落地方案（数据库行锁或唯一约束冲突重试）,决定并发正确提交时只产生一条捕获记录,胡豪,建议以数据库唯一约束为主、冲突时查回已有记录返回，不依赖内存锁,待回复
+Q09,启动类扫描范围是否改为 edu.pkmon,目前 capture 包不被扫描，本模块用自动配置注册（多一个 resources 下的 imports 文件）；改扫描范围后可删该文件,胡豪,建议改为 @SpringBootApplication(scanBasePackages = "edu.pkmon")；本模块 @Bean 带 @ConditionalOnMissingBean，会自动让位不会重复注册,待回复
+Q10,旧演示 capture 路由已迁到 /api/v1/demo/capture/*,客户端若直连旧路径将失败；其余旧路由（sessions/state/explore/reset）不变,冉昕霖,请网络适配层改这两处调用；适配层同时把旧字段转为统一字段（见 design.txt 3.3）,待回复

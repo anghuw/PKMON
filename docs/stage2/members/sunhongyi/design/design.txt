@@ -383,3 +383,37 @@ SubmitAnswerCommand(String challengeId, String requestId, String optionId)
 缺项4 建表与迁移编号规则未定（责任人 胡豪）。本文 5.1 只给字段与约束需求。
 缺项5 本机未安装 Flutter，客户端侧无法执行（不影响后端接口验证，可用
   Invoke-WebRequest 直接验证）。
+
+====================================================================
+十二、实现对照（10/21 提前落地骨架后回填）
+====================================================================
+本节的实测细节见 evidence/foundation.txt，接口状态见 interfaces.json（version
+foundation-2026-10-21）。
+
+12.1 已实现且实测通过的路径
+  开发遭遇 → 取题 → 答错 → 答对 → 状态查询 → 收藏概览，全部走真实服务（端口 4180）。
+  幂等（同 requestId 同内容）、冲突（40902）、他人资源（40401）、缺省身份（40101）、
+  已收录再挑战（40903）均按设计返回。测试 23 个全绿（本模块 15 + 旧演示 8）。
+
+12.2 与设计的两处偏差（有原因，不是随意改）
+  偏差1 装配方式：设计假定组件扫描能发现本模块，实际启动类只扫 edu.pkmon.demo，
+    且启动类归胡豪。改为 Spring Boot 自动配置注册（CaptureConfig +
+    META-INF/spring/...AutoConfiguration.imports），所有 @Bean 带 @ConditionalOnMissingBean，
+    一旦扫描范围扩大则自动让位、不重复定义。已开问题 Q09 请胡豪定夺。
+  偏差2 旧演示路由：设计只写“旧路由独立保留”，实际旧 DemoController 的两个 capture 路由
+    与新接口路径完全重合，同时注册会构成歧义映射、启动失败。已迁到
+    /api/v1/demo/capture/challenge 与 /api/v1/demo/capture/answer，其余旧路由不变。
+    对客户端是破坏性变更，已开 Q10 交冉昕霖。
+
+12.3 新增的错误码（实现期补充，已并入 interfaces.json）
+  40101 未提供可用身份、40301 开发遭遇未开放、40903 该遭遇已收录、
+  50301 认证未接入、50302 题库不可用。
+
+12.4 仍是模拟的部分
+  存储：内存替身，重启即丢；题库：FixtureCatalog 单题替身；身份：X-Dev-User 头替身。
+  因此 collection/summary 的 totalSpeciesCount 实测为 1（替身目录条目数），
+  与设计样例的 3 不同，接真实图鉴后以实际条目数为准。
+
+12.5 仍未执行
+  TC-07（并发唯一，需真实数据库约束）、TC-08（重启后查询）、TC-09 的真实认证隔离、
+  submit 的事务边界（工程无 spring-tx）、客户端联调（本机无 Flutter）。

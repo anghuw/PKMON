@@ -2,14 +2,15 @@
   "owner": "sunhongyi",
   "stage": "stage2",
   "module": "capture",
-  "version": "design-2026-10-28",
-  "status": "designed_not_implemented",
-  "statusNote": "字段与签名在 10/28 定稿；全部接口 implemented=false，尚未实现。10/31 骨架落地后更新 implemented 与 exampleResponse 的实际返回。",
+  "version": "foundation-2026-10-21",
+  "designedVersion": "design-2026-10-28",
+  "status": "implemented_with_in_memory_store",
+  "statusNote": "五个接口均已实现并通过端到端实测（2026-10-21）。但存储为内存替身、身份为开发头替身，storageSimulated=true，不代表真实持久化与真实认证。接真库后需补 TC-07/TC-08 并把该标记置为 false。",
   "conventions": {
     "baseUrl": "http://127.0.0.1:4180",
     "businessPrefix": "/api/v1",
-    "auth": "Authorization: Bearer <token>",
-    "userIdSource": "只从认证上下文取得，任何接口都不接受请求体中的 userId",
+    "auth": "Authorization: Bearer <token>（正式）；当前开发期为 X-Dev-User 请求头替身，接认证后由 pkmon.capture.dev-user-header=false 关闭",
+    "userIdSource": "只从 CurrentUserProvider 取得，任何接口都不接受请求体中的 userId",
     "successEnvelope": { "code": 0, "message": "ok", "data": {} },
     "errorEnvelope": { "code": 40001, "message": "参数错误", "data": null },
     "fieldCase": "lowerCamelCase",
@@ -18,44 +19,59 @@
   },
   "errorCodes": [
     { "code": 0, "httpStatus": 200, "meaning": "成功" },
+    { "code": 40101, "httpStatus": 401, "meaning": "未提供可用的身份（开发期缺少 X-Dev-User 头）", "newInImplementation": true },
     { "code": 40001, "httpStatus": 400, "meaning": "参数错误，含选项不属于该题" },
+    { "code": 40301, "httpStatus": 403, "meaning": "开发遭遇仅在 dev/test 开放", "newInImplementation": true },
     { "code": 40401, "httpStatus": 404, "meaning": "资源不存在或不属于当前用户，不泄露归属" },
     { "code": 40902, "httpStatus": 409, "meaning": "同一 requestId 内容冲突，原记录不修改" },
-    { "code": 41001, "httpStatus": 410, "meaning": "挑战或遭遇已过期，且该请求未曾处理" }
+    { "code": 40903, "httpStatus": 409, "meaning": "该遭遇已收录，不能重复挑战", "newInImplementation": true },
+    { "code": 41001, "httpStatus": 410, "meaning": "挑战或遭遇已过期，且该请求未曾处理" },
+    { "code": 50301, "httpStatus": 503, "meaning": "认证上下文尚未接入（dev-user-header 关闭时）", "newInImplementation": true },
+    { "code": 50302, "httpStatus": 503, "meaning": "题库暂不可用", "newInImplementation": true }
   ],
+  "routeMigration": {
+    "changedDemoPaths": [
+      { "from": "POST /api/v1/capture/challenge", "to": "POST /api/v1/demo/capture/challenge", "reason": "与新正式接口路径冲突，同时注册会构成歧义映射" },
+      { "from": "POST /api/v1/capture/answer", "to": "POST /api/v1/demo/capture/answer", "reason": "同上" }
+    ],
+    "unchangedDemoPaths": ["/api/v1/demo/sessions", "/api/v1/demo/state", "/api/v1/demo/explore", "/api/v1/demo/reset"],
+    "affectedCaller": "客户端网络层（冉昕霖）需改这两处调用，见 questions.csv Q10"
+  },
   "interfaces": [
     {
       "name": "createDevSpawn",
       "method": "POST",
       "path": "/api/v1/dev/spawns",
-      "implemented": false,
-      "availability": "dev/test only，正式环境不得开放",
+      "implemented": true,
+      "storageSimulated": true,
+      "availability": "dev/test only；是否开放由 pkmon.capture.dev-spawn-enabled 控制",
       "requestFields": ["regionId", "speciesId"],
       "responseDataFields": ["spawnId", "regionId", "speciesId", "sourceType", "expiresAt"],
       "enums": { "sourceType": ["DEV_SIMULATED", "LOCATION"] },
       "exampleRequest": { "regionId": "library_entrance", "speciesId": "siege_lion" },
       "exampleResponseData": {
-        "spawnId": "6f1c1a3e-0d5a-4a1b-9c1e-2b7f4a6d8e01",
+        "spawnId": "15dddf9e-6932-43b3-9fde-d149eb1fad38",
         "regionId": "library_entrance",
         "speciesId": "siege_lion",
         "sourceType": "DEV_SIMULATED",
-        "expiresAt": "2026-10-25T12:00:00Z"
+        "expiresAt": "2026-10-21T13:09:39.507769700Z"
       },
-      "notes": "页面须依据 sourceType 标注“模拟遇见攻城狮”。遭遇机会不等于奖励，本接口不产生收录。",
+      "notes": "实测返回如上（2026-10-21）。页面须依据 sourceType 标注“模拟遇见攻城狮”。遭遇机会不等于奖励，本接口不产生收录。",
       "ruleIds": ["BR-01"]
     },
     {
       "name": "createChallenge",
       "method": "POST",
       "path": "/api/v1/capture/challenge",
-      "implemented": false,
+      "implemented": true,
+      "storageSimulated": true,
       "requestFields": ["spawnId"],
       "responseDataFields": ["challengeId", "spawnId", "speciesId", "speciesName", "questionId", "questionText", "options", "expiresAt"],
       "optionsShape": [{ "optionId": "A", "text": "选项文本" }],
-      "exampleRequest": { "spawnId": "6f1c1a3e-0d5a-4a1b-9c1e-2b7f4a6d8e01" },
+      "exampleRequest": { "spawnId": "15dddf9e-6932-43b3-9fde-d149eb1fad38" },
       "exampleResponseData": {
-        "challengeId": "a92b7c44-5b1d-4f80-8f13-93c1d0e7ab02",
-        "spawnId": "6f1c1a3e-0d5a-4a1b-9c1e-2b7f4a6d8e01",
+        "challengeId": "60d5c1fd-52f7-4ccf-8ab7-d156557f75b8",
+        "spawnId": "15dddf9e-6932-43b3-9fde-d149eb1fad38",
         "speciesId": "siege_lion",
         "speciesName": "攻城狮",
         "questionId": "hello_world_001",
@@ -65,36 +81,37 @@
           { "optionId": "B", "text": "\"hello world\"（连引号一起输出）" },
           { "optionId": "C", "text": "什么都不输出，只是定义了一个字符串" }
         ],
-        "expiresAt": "2026-10-25T12:05:00Z"
+        "expiresAt": "2026-10-21T13:04:39.570979700Z"
       },
-      "security": "响应不得包含 correctOptionId、answer 等任何答案字段。",
-      "errorCodes": [40401, 41001],
-      "notes": "同一遭遇若已有未过期的 OPEN 挑战则复用，不新建。",
+      "security": "实测响应不含 correctOptionId、answer 字段（CaptureServiceTest TC-10 断言）。",
+      "errorCodes": [40401, 41001, 40903],
+      "notes": "同一遭遇若已有未过期的 OPEN 挑战则复用，不新建；已收录则返回 40903。",
       "ruleIds": ["BR-02", "BR-09"]
     },
     {
       "name": "submitAnswer",
       "method": "POST",
       "path": "/api/v1/capture/answer",
-      "implemented": false,
+      "implemented": true,
+      "storageSimulated": true,
       "requestFields": ["challengeId", "requestId", "optionId"],
       "responseDataFields": ["challengeId", "requestId", "result", "captureRecordId", "speciesId"],
       "enums": { "result": ["CORRECT", "WRONG"] },
       "exampleRequest": {
-        "challengeId": "a92b7c44-5b1d-4f80-8f13-93c1d0e7ab02",
-        "requestId": "c7d3e0f1-2a4b-4c6d-8e90-1f2a3b4c5d03",
+        "challengeId": "60d5c1fd-52f7-4ccf-8ab7-d156557f75b8",
+        "requestId": "req-e2e-2",
         "optionId": "A"
       },
       "exampleResponseDataCorrect": {
-        "challengeId": "a92b7c44-5b1d-4f80-8f13-93c1d0e7ab02",
-        "requestId": "c7d3e0f1-2a4b-4c6d-8e90-1f2a3b4c5d03",
+        "challengeId": "60d5c1fd-52f7-4ccf-8ab7-d156557f75b8",
+        "requestId": "req-e2e-2",
         "result": "CORRECT",
-        "captureRecordId": "5e8871b2-9c3d-4e5f-8a6b-7c8d9e0f1a04",
+        "captureRecordId": "6edbb64b-9a35-4782-b073-0f1341bf8bde",
         "speciesId": "siege_lion"
       },
       "exampleResponseDataWrong": {
-        "challengeId": "a92b7c44-5b1d-4f80-8f13-93c1d0e7ab02",
-        "requestId": "c7d3e0f1-2a4b-4c6d-8e90-1f2a3b4c5d03",
+        "challengeId": "60d5c1fd-52f7-4ccf-8ab7-d156557f75b8",
+        "requestId": "req-e2e-1",
         "result": "WRONG",
         "captureRecordId": null,
         "speciesId": "siege_lion"
@@ -103,10 +120,12 @@
       "judgementOrder": [
         "1 归属校验：challenge.userId != 当前 userId → 40401",
         "2 幂等判定：answer_attempt(user_id, request_id) 存在且内容一致 → 回放原结果；内容不同 → 40902",
-        "3 有效性判定：先取 spawn（锁顺序第 1 步），再判 expiresAt 与选项合法性 → 41001 / 40001",
-        "4 结算：判题；CORRECT 则写 capture_record 并置 challenge.status=CAPTURED，同事务提交后返回"
+        "3 有效性判定：取 spawn，再判 expiresAt 与选项合法性 → 41001 / 40001",
+        "4 结算：判题；CORRECT 则写 capture_record 并置 challenge.status=CAPTURED"
       ],
-      "concurrency": "并发写由唯一约束 capture_record(user_id, spawn_id) 与 answer_attempt(user_id, request_id) 兜底；冲突方回查已有记录并沿用其标识，不重复发奖。内存锁与按钮禁用不能替代约束。",
+      "concurrency": "当前内存替身用 ConcurrentMap.putIfAbsent 模拟唯一约束，能证明业务回查路径；真实数据库约束待依赖到位后验证（TC-07 未执行）。",
+      "transactional": false,
+      "transactionNote": "工程无 spring-tx，submit 尚未加事务注解；接依赖后需整体事务覆盖作答记录、收录记录与挑战状态。",
       "notes": "答错不消耗挑战，status 保持 OPEN，captureRecordId 为 null。",
       "ruleIds": ["BR-02", "BR-03", "BR-04", "BR-05", "BR-06", "BR-07", "BR-10"]
     },
@@ -114,39 +133,41 @@
       "name": "getChallengeStatus",
       "method": "GET",
       "path": "/api/v1/capture/challenges/{challengeId}",
-      "implemented": false,
+      "implemented": true,
+      "storageSimulated": true,
       "requestFields": [],
       "responseDataFields": ["challengeId", "status", "captureRecordId", "expiresAt", "lastAttempt"],
       "lastAttemptShape": { "requestId": "", "result": "CORRECT", "submittedAt": "UTC ISO 8601" },
       "enums": { "status": ["OPEN", "CAPTURED", "EXPIRED"] },
       "exampleResponseData": {
-        "challengeId": "a92b7c44-5b1d-4f80-8f13-93c1d0e7ab02",
+        "challengeId": "60d5c1fd-52f7-4ccf-8ab7-d156557f75b8",
         "status": "CAPTURED",
-        "captureRecordId": "5e8871b2-9c3d-4e5f-8a6b-7c8d9e0f1a04",
-        "expiresAt": "2026-10-25T12:05:00Z",
+        "captureRecordId": "6edbb64b-9a35-4782-b073-0f1341bf8bde",
+        "expiresAt": "2026-10-21T13:04:39.570979700Z",
         "lastAttempt": {
-          "requestId": "c7d3e0f1-2a4b-4c6d-8e90-1f2a3b4c5d03",
+          "requestId": "req-e2e-2",
           "result": "CORRECT",
-          "submittedAt": "2026-10-25T12:01:30Z"
+          "submittedAt": "2026-10-21T12:59:39.590867200Z"
         }
       },
       "errorCodes": [40401],
-      "notes": "用于“结果待确认”时确认真实状态，只读，不改变任何状态。已处理过的请求在过期后仍可读到原结果。",
+      "notes": "只读，顺带做惰性过期落库；已处理过的请求在过期后仍可读到原结果。",
       "ruleIds": ["BR-06", "BR-07", "BR-08"]
     },
     {
       "name": "getCollectionSummary",
       "method": "GET",
       "path": "/api/v1/collection/summary",
-      "implemented": false,
+      "implemented": true,
+      "storageSimulated": true,
       "requestFields": [],
       "responseDataFields": ["collectedSpeciesCount", "totalSpeciesCount", "captureCount"],
       "exampleResponseData": {
         "collectedSpeciesCount": 1,
-        "totalSpeciesCount": 3,
+        "totalSpeciesCount": 1,
         "captureCount": 1
       },
-      "notes": "最小收藏查询，用于验证重启后仍可查询真实持久化结果。",
+      "notes": "totalSpeciesCount 实测为 1，来源是 FixtureCatalog 替身目录条目数；接入真实图鉴后应为实际条目数（设计样例写 3，待题库/图鉴确认）。重启后查询未执行（内存存储）。",
       "ruleIds": ["BR-06"]
     }
   ],
@@ -156,7 +177,7 @@
     { "class": "CaptureService", "signature": "ChallengeResponse startChallenge(String userId, String spawnId)" },
     { "class": "CaptureService", "signature": "AnswerResponse submit(String userId, SubmitAnswerCommand cmd)" },
     { "class": "CaptureService", "signature": "ChallengeStatusResponse status(String userId, String challengeId)" },
-    { "class": "CollectionService", "signature": "CollectionSummary summary(String userId)" },
+    { "class": "CollectionService", "signature": "CollectionSummaryResponse summary(String userId)" },
     { "class": "SubmitAnswerCommand", "signature": "record SubmitAnswerCommand(String challengeId, String requestId, String optionId)" }
   ],
   "ownerScope": {
@@ -168,6 +189,9 @@
       "server/src/test/java/edu/pkmon/demo/DemoServiceTest.java",
       "docs/stage2/members/sunhongyi/"
     ],
+    "addedThisStage": [
+      "server/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"
+    ],
     "notModifiable": [
       "server/pom.xml（公共依赖，主责胡豪）",
       "启动类 PkmonApplication（主责胡豪）",
@@ -177,9 +201,10 @@
     ]
   },
   "dependencies": [
-    { "item": "事务与持久化依赖（spring-tx / jdbc / jpa）", "status": "missing", "owner": "胡豪", "impact": "@Transactional 当前不可用，5.2 与 5.3 无法落地" },
-    { "item": "认证上下文取 userId", "status": "missing", "owner": "闫昕", "impact": "真实用户隔离未验证，暂用测试替身" },
-    { "item": "题库与物种初始数据", "status": "missing", "owner": "闫昕", "impact": "取题来源与 TC-10 数据准备" },
-    { "item": "建表与迁移编号规则", "status": "missing", "owner": "胡豪", "impact": "5.1 只给字段与约束需求" }
+    { "item": "事务与持久化依赖（spring-tx / jdbc / jpa）", "status": "missing", "owner": "胡豪", "impact": "@Transactional 不可用；submit 无事务边界；TC-07/TC-08 未执行（实测依赖树无 spring-tx/jdbc/JPA/H2）" },
+    { "item": "启动类组件扫描范围", "status": "workaround", "owner": "胡豪", "impact": "PkmonApplication 只扫 edu.pkmon.demo，capture 包改用自动配置注册；若改为扫 edu.pkmon，本模块 @Bean 会因 @ConditionalOnMissingBean 自动让位" },
+    { "item": "认证上下文取 userId", "status": "missing", "owner": "闫昕", "impact": "现用 X-Dev-User 头替身；真实用户隔离未验证" },
+    { "item": "题库与物种初始数据", "status": "missing", "owner": "闫昕", "impact": "现用 FixtureCatalog 单题替身，totalSpeciesCount 实测为 1" },
+    { "item": "建表与迁移编号规则", "status": "missing", "owner": "胡豪", "impact": "表结构需求见 design.txt 5.1，尚无 DDL" }
   ]
 }

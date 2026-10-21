@@ -16,8 +16,8 @@ public class DemoController {
     @GetMapping("/api/v1/demo/state") public Envelope state(@RequestHeader("X-Demo-Session") String id) { return ok(service.state(id)); }
     @PostMapping("/api/v1/demo/explore") public Envelope explore(@RequestHeader("X-Demo-Session") String id) { return ok(service.explore(id)); }
     @PostMapping("/api/v1/demo/reset") public Envelope reset(@RequestHeader("X-Demo-Session") String id) { return ok(service.reset(id)); }
-    @PostMapping("/api/v1/capture/challenge") public Envelope challenge(@RequestHeader("X-Demo-Session") String id, @RequestBody Map<String,String> body) { return ok(service.challenge(id, body.get("spawnId"))); }
-    @PostMapping("/api/v1/capture/answer") public Envelope answer(@RequestHeader("X-Demo-Session") String id, @RequestBody Map<String,String> body) { return ok(service.answer(id, body.get("challengeId"), body.get("optionId"))); }
+    @PostMapping("/api/v1/demo/capture/challenge") public Envelope challenge(@RequestHeader("X-Demo-Session") String id, @RequestBody Map<String,String> body) { return ok(service.challenge(id, body.get("spawnId"))); }
+    @PostMapping("/api/v1/demo/capture/answer") public Envelope answer(@RequestHeader("X-Demo-Session") String id, @RequestBody Map<String,String> body) { return ok(service.answer(id, body.get("challengeId"), body.get("optionId"))); }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Envelope> badInput(IllegalArgumentException e) { return ResponseEntity.badRequest().body(new Envelope(400,e.getMessage(),null)); }
 }
