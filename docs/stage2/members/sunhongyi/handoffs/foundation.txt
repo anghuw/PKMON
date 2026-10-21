@@ -1,0 +1,66 @@
+阶段：foundation（10/31）
+作者：孙虹毅
+本人分支：design/sunhongyi-stage2
+成果提交号（完整）：ba5c2d1deaab4465dcd9682d39e943fdc6ab70e1
+状态：仅个人分支
+主线合并提交号：未合入，暂不填
+
+一、本次交付
+  server/src/main/java/edu/pkmon/capture/ 全包（domain / error / dto / port / repository /
+    repository.memory / service / web / config）与对应测试
+  server/src/test/java/edu/pkmon/capture/service/ 两个测试类
+  server/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+  server/src/main/java/edu/pkmon/demo/DemoController.java（仅两个路由迁移）
+  docs/stage2/members/sunhongyi/evidence/foundation.txt（实测记录）
+  docs/stage2/members/sunhongyi/design/design.txt 第十二节（实现对照）
+  docs/stage2/members/sunhongyi/design/interfaces.json（实现状态与错误码更新）
+  docs/stage2/members/sunhongyi/analysis/questions.csv（新增 Q09、Q10）
+
+二、运行方式（真实可用）
+  1) cd server
+  2) mvn -B test                      → 预期 Tests run: 23，BUILD SUCCESS
+  3) mvn -B package -DskipTests
+  4) java -jar target/pkmon-server-0.1.0.jar      （监听 127.0.0.1:4180）
+  5) 另开终端，正式业务接口需带开发期身份头 X-Dev-User: <任意用户标识>
+     示例：
+       curl -X POST http://127.0.0.1:4180/api/v1/dev/spawns \
+         -H "Content-Type: application/json" -H "X-Dev-User: u-1" \
+         -d '{"regionId":"library_entrance","speciesId":"siege_lion"}'
+  6) 依次调用 /api/v1/capture/challenge、/api/v1/capture/answer、
+     /api/v1/capture/challenges/{id}、/api/v1/collection/summary，
+     字段与样例见 design/interfaces.json。
+  三个开关（默认即开发期形态，正式环境必须关）：
+     pkmon.capture.dev-user-header=false    关闭 X-Dev-User 身份替身
+     pkmon.capture.dev-spawn-enabled=false  关闭开发遭遇
+     pkmon.capture.in-memory-store=false    不使用内存仓储替身（届时需接入真实实现）
+
+三、实测结果（摘自 evidence/foundation.txt）
+  mvn -B test：Tests run: 23, Failures: 0, Errors: 0, Skipped: 0；BUILD SUCCESS
+  端到端：/test/hello 200；dev/spawns 200（DEV_SIMULATED）；challenge 200（不含答案字段）；
+    答错 200 WRONG + 记录为空；答对 200 CORRECT + captureRecordId；
+    status 200 CAPTURED；summary 200 captureCount=1；
+    幂等重放与首次一致；换选项 409/40902；他人资源 404/40401；缺身份 401/40101；
+    已收录再挑战 409/40903；旧演示路由 200。
+
+四、真实／模拟／未执行
+  真实：编译、23 个用例、真实服务启动与端到端调用、旧演示路由回归。
+  模拟：存储（内存替身，重启即丢）、题库（单题替身）、身份（请求头替身）。
+  未执行：TC-07 并发唯一（需真实数据库约束）、TC-08 重启后查询、真实认证下的隔离、
+    submit 的事务边界（工程无 spring-tx）、客户端联调（本机无 Flutter）。
+    以上在 test-cases.csv 与 interfaces.json 中均如实标注，不标通过。
+
+五、对调用方的影响（重要）
+  1) 旧演示两个路由已迁移：
+       /api/v1/capture/challenge → /api/v1/demo/capture/challenge
+       /api/v1/capture/answer    → /api/v1/demo/capture/answer
+     原因：与新正式接口路径重合，会构成歧义映射导致启动失败。其余旧路由不变。
+     客户端需改这两处（责任人冉昕霖，Q10）。
+  2) 正式接口当前要求 X-Dev-User 头；接入认证后由配置关闭，届时改回 Bearer token。
+  3) 新增错误码 40101、40301、40903、50301、50302，见 interfaces.json。
+
+六、缺项与下一步
+  缺项1 事务与持久化依赖（胡豪）：决定 TC-07/TC-08 与事务边界能否落地。
+  缺项2 启动类扫描范围（胡豪，Q09）：现用自动配置兜底，改扫描范围后可删 imports 文件。
+  缺项3 认证入口（闫昕，Q01）、题库初始数据（闫昕，Q03）。
+  下一步：接真库后补 TC-07/TC-08，把 interfaces.json 的 storageSimulated 置 false；
+    与董欣毓接通正式任务遭遇时保持幂等与隔离回归测试。
