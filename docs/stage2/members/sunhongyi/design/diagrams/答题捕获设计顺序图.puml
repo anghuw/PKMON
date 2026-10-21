@@ -1,0 +1,86 @@
+@startuml 答题捕获设计顺序图
+' 孙虹毅 · 第二阶段设计 · 设计顺序图（答对主流程 + 幂等与唯一约束分支）
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #5B6B7C
+  ParticipantBackgroundColor #F5F8FB
+  ParticipantBorderColor #6F97B8
+  ParticipantFontColor #1F2A37
+  LifeLineBorderColor #B9C7D4
+  GroupBorderColor #6F97B8
+  GroupHeaderFontColor #1F3D57
+}
+
+actor 客户端 as C
+participant "CaptureController" as Ctrl
+participant "CaptureService" as Svc
+participant "SpawnRepository" as SpawnRepo
+participant "ChallengeRepository" as ChRepo
+participant "AnswerAttemptRepository" as AtRepo
+participant "CaptureRecordRepository" as CrRepo
+participant "QuestionSource" as Q
+
+C -> Ctrl : POST /api/v1/capture/answer\n{challengeId, requestId, optionId}
+note over Ctrl
+  userId 只从认证上下文取得，
+  不接受请求体传入。
+end note
+
+Ctrl -> Ctrl : 参数校验（三项均非空）
+Ctrl -> Svc : submit(userId, SubmitAnswerCommand)
+note over Svc : 开启事务
+
+Svc -> ChRepo : findById(challengeId)
+ChRepo --> Svc : challenge（含 spawnId）
+
+group 第 1、2 步：归属与幂等
+  Svc -> Svc : 校验 challenge.userId == userId\n否则按 40401 处理
+  Svc -> AtRepo : findByUserAndRequestId(userId, requestId)
+  alt 已存在且 optionId 相同
+    AtRepo --> Svc : 原作答
+    Svc --> Ctrl : 回放原结果（读取原 captureRecordId）
+    Ctrl --> C : code=0，与首次一致
+  else 已存在但 optionId 不同
+    Svc --> Ctrl : 抛出 ApiException(40902)
+    Ctrl --> C : 409 / code=40902
+  end
+end
+
+group 第 3 步：有效性
+  Svc -> SpawnRepo : findById(challenge.spawnId)\n（锁顺序：先遭遇）
+  SpawnRepo --> Svc : spawn
+  Svc -> Svc : 判定 挑战过期 / 选项属于该题
+  alt 已过期且请求未曾处理
+    Svc --> Ctrl : 抛出 ApiException(41001)
+    Ctrl --> C : 410 / code=41001
+  end
+end
+
+group 第 4 步：结算（锁顺序：后挑战）
+  Svc -> Q : 判定所选选项
+  Q --> Svc : CORRECT
+  Svc -> CrRepo : save(CaptureRecord(userId, spawnId, challengeId))
+  alt 唯一约束 (user_id, spawn_id) 冲突
+    CrRepo --> Svc : 冲突
+    Svc -> CrRepo : findByUserAndSpawn(userId, spawnId)
+    CrRepo --> Svc : 已有记录（并发下的胜者）
+    note over Svc
+      不重复发奖：沿用已有记录的 captureRecordId，
+      本次不新建。这是并发正确提交只产生一条收录的实现路径。
+    end note
+  end
+  Svc -> ChRepo : save(challenge.status = CAPTURED)
+  Svc -> AtRepo : save(AnswerAttempt(requestId, CORRECT))
+  note over Svc : 提交事务
+end
+
+Svc --> Ctrl : AnswerResponse(result=CORRECT, captureRecordId)
+Ctrl --> C : 200 / code=0，事务已提交
+
+note over Svc
+  事务边界覆盖：幂等记录、收录记录、
+  挑战状态三者，提交成功后才返回成功。
+end note
+@enduml

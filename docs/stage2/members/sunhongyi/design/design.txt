@@ -1,79 +1,385 @@
 答题捕获与精灵收录 · 详细设计
 作者：孙虹毅
-阶段：第二阶段 10/25-10/28（design）
+阶段：第二阶段 10/25-10/28（阶段键 design）
 对应截止：10/29 04:00
-状态：骨架，正文待填写
-所读源码提交号：（待填）
-所读分析成果提交号：（待填 analysis 交付的完整提交号）
+状态：正文初稿完成，待 10/28 技术验证与自查后定稿
+所读源码提交号：d847572ddaefa30caf38902f10505297be1e0964
+所读分析成果提交号：23d4957aaa1f36d245f5c0a2f2e5471abaf0cae8
 
 ====================================================================
-0. 设计范围与图码对应原则
+零、本阶段产出与图码对应
 ====================================================================
-在分析结果上补界面、控制、数据和技术对象；逐项写清“新增/调整了什么、属于哪部分设计、
-为什么要改”，不复制分析图改标题。图、接口、方法签名、测试用例逐项对应，模拟与未实现
-明确标注。
+本文档把 analysis 阶段的业务结论落成技术设计：分层职责、方法签名、接口字段、
+数据与约束、事务与并发、测试设计。分析阶段的对象与规则不推翻，只补齐技术对象，
+逐项变化见 analysis-to-design.csv。
+
+图表索引（design/diagrams/，源文件为可编辑 PlantUML，导出 PNG）：
+  图1 答题捕获包图        说明见本文 8.1
+  图2 答题捕获设计类图    说明见本文 8.2
+  图3 答题捕获设计顺序图  说明见本文 8.3
+  图4 挑战设计状态图      说明见本文 8.4
+分析阶段仍有四张图在 analysis/diagrams/，两套图并存：分析图表达业务，设计图表达技术实现，
+不互相替代。
+
+本阶段明确的边界：
+- 只设计一种精灵（siege_lion）与一道题（hello_world_001），一题一种精灵。
+- 开发遭遇只在 dev/test 开放，正式环境不得暴露。
+- 本阶段交付签名、JSON 样例与测试设计；最小骨架与可编译实现放到 10/31 foundation。
 
 ====================================================================
-1. 问题域设计
+一、从分析到设计的变化总览
 ====================================================================
-1.1 业务规则由谁负责（Spawn / Challenge / AnswerAttempt / CaptureRecord 各自的规则边界）
-    待填
-1.2 类职责与代码签名（SpawnService / CaptureService / CollectionService）
-    待填
-1.3 与分析图的差异说明
-    待填
+变化1 增加分层：分析只有业务对象，设计增加 Controller、Service、Repository、DTO 与端口，
+  并用包约束依赖方向（web → service → repository/port → domain）。
+  理由：把 HTTP 细节与事务边界从业务规则里分离，业务规则才能用固定时钟独立测试。
+
+变化2 引入 Clock：所有时间判定取自注入的 Clock，不调用系统时钟。
+  理由：有效期边界必须可重复验证；测试用 Clock.fixed 固定时刻，不靠 sleep。
+
+变化3 引入 QuestionSource 与 SpeciesCatalog 端口：取题与查物种走端口。
+  理由：题库与图鉴由他人主责，端口隔离便于用测试替身推进；但真实判题不得由替身冒充，
+  替身只用于本模块单元测试。
+
+变化4 持久化标识进入领域对象：Challenge 增加 userId、spawnId、questionId；AnswerAttempt
+  增加 userId、challengeId；CaptureRecord 增加 userId、spawnId、challengeId。
+  理由：唯一约束与归属校验需要这些外键在数据层直接可用，避免跨表推断。
+
+变化5 幂等从“检查答题记录”落成“唯一约束 + 冲突回查”。
+  理由：并发下先查后写会双写，只有数据库唯一约束能兜住。
+
+变化6 过期从“概念状态”落成“惰性判定 + 状态字段”。
+  理由：不引入定时任务；但因此一切有效性判定必须比较 clock.instant() 与 expiresAt，
+  不能只看 status 字段。
+
+变化7 统一响应体与错误码：code/message/data，错误码 40001/40401/40902/41001。
+  理由：HTTP 状态与业务 code 都要检查；客户端据此区分“参数错”“不存在”“冲突”“过期”。
+
+变化8 旧 Demo 兼容：DemoController/DemoService 保留并迁移，旧路由在过渡期独立。
+  理由：旧页面仍在使用；启动类由胡豪统一改动，本模块不改启动类。
 
 ====================================================================
-2. 人机交互设计
+二、问题域设计
 ====================================================================
-2.1 输入输出与页面状态（含“结果待确认”）
-    待填
-2.2 错误恢复路径（超时先查状态、同 requestId 恢复）
-    待填
+2.1 业务规则由谁负责
+  SpawnService：遭遇机会的创建与可用性判定。不判题、不发奖。
+  CaptureService：挑战创建、作答结算、状态查询。本模块唯一持有事务边界的地方。
+  CollectionService：只读统计，不写入。
+  Repository：只负责按标识读写，不含业务判断。
+  Controller：只做参数校验、从认证上下文取 userId、把业务异常映射为响应。
+
+2.2 规则与代码位置的对应
+  BR-01 遭遇不是奖励 → SpawnService.createDevSpawn 只写 spawn，不触碰 capture_record。
+  BR-02 同一遭遇至多一条收录 → capture_record 唯一约束 (user_id, spawn_id)，
+       冲突时 CaptureService 回查已有记录并沿用，不新建。
+  BR-03 请求标识幂等 → answer_attempt 唯一约束 (user_id, request_id)，同内容回放、异内容冲突。
+  BR-04 答错不消耗挑战 → 结算分支只追加 answer_attempt(WRONG)，不写 challenge.status。
+  BR-05 无效选项不消耗挑战 → 选项合法性校验早于结算，不落任何记录。
+  BR-06 事务提交才算入账 → submit 的整体事务，提交后才构造成功响应。
+  BR-07 过期拦截新作答、幂等优先 → 判定次序见 4.2。
+  BR-08 身份与隔离 → userId 由 Controller 从认证上下文取得；归属校验在 Service 第一步。
+  BR-09 不泄露答案 → DTO 中不存在正确答案字段，映射时只取 optionId 与 text。
+  BR-10 WRONG 不是状态 → challenge.status 的取值集合不含 WRONG。
+
+2.3 与分析类图的差异说明
+  分析图中的 User 类在设计里弱化为“认证上下文提供的 userId 值”，不再作为独立实体维护；
+  其职责（归属与统计）分别落到各实体的 user_id 字段与 CollectionService。
+  分析图中 Species 与 Question 属于题库/图鉴，设计里不建表、不维护，只通过端口读取；
+  它们的落库归属待胡豪与闫昕确认（questions.csv Q03）。
 
 ====================================================================
-3. 控制驱动设计
+三、人机交互设计
 ====================================================================
-3.1 Controller / Service / Repository / DTO 的职责边界
-    待填
-3.2 事件、调用顺序、并发与重试
-    待填（锁顺序：先遭遇后挑战，所有调用保持一致）
-3.3 固定时钟与可测性（Clock 注入）
-    待填
+3.1 页面状态与业务状态的区分
+  页面需要四个可见状态，其中“结果待确认”是纯界面状态，服务端不新增该状态：
+  正常待作答：已取到题目，等待用户选择。
+  结果待确认：提交后未拿到确定响应（超时、断网、页面被杀）。
+  已捕获：拿到 CORRECT 且收录标识非空。
+  已过期：提交或查询得知挑战过期且此前未成功。
+
+3.2 输入约束
+  选项只允许服务端下发的 optionId，客户端不得自行构造。
+  一次作答生成一个请求标识；同一次作答的重试沿用同一标识，用户重新作答才生成新标识。
+
+3.3 输出字段与旧演示的差异（交冉昕霖适配层处理）
+  旧演示字段 → 统一字段：
+    name → speciesName；question → questionText；
+    options[].id → options[].optionId；options[].text 不变；success → result（CORRECT/WRONG）。
+  业务层不接受旧字段名，转换只在适配层做，避免两套字段在业务代码里扩散。
+
+3.4 错误恢复
+  提交超时：先 GET 挑战状态。若已 CAPTURED 则显示成功；若仍 OPEN 则用原请求标识重试；
+    两者都不成立才提示失败。客户端不得依据本地状态自行发奖。
+  收到 40902：说明同一请求标识被用于不同内容，属客户端缺陷；界面提示重新作答并生成新标识。
+  收到 41001：提示重新遭遇，不显示成功。
+  收到 40401：按“资源不存在”处理，不使用“无权访问”措辞，避免泄露存在性。
 
 ====================================================================
-4. 数据管理设计
+四、控制驱动设计
 ====================================================================
-4.1 存储与表结构（字段、类型、多重性、约束）
-    待填
-4.2 事务边界：答对时“唯一收录 + 置 CAPTURED”在同一事务，提交后才返回成功
-    待填
-4.3 唯一约束：capture_record(user_id, spawn_id)、answer_attempt(user_id, request_id)
-    待填（须说明并发冲突的查询与返回路径，说明为何内存锁与按钮禁用不能替代）
-4.4 访问控制：userId 只从认证上下文取得，他人资源按 40401 处理且不泄露归属
-    待填
+4.1 职责边界
+  Controller：解析请求、校验必填、取 userId、调用 Service、包装统一响应、异常映射。
+    不含业务判断，不直接访问 Repository。
+  Service：业务规则、判定次序、事务边界、并发冲突处理。唯一允许写多个仓储的地方。
+  Repository：按标识读写单个聚合，不跨表推断业务含义。
+  DTO：只做传输结构，不含行为；对外 DTO 不含正确答案字段。
+
+4.2 调用与判定次序（与分析 5.3 一致，不得改动）
+  第一步 归属校验：challenge.userId 与当前 userId 不等 → 40401。
+  第二步 幂等判定：按 (userId, requestId) 查 answer_attempt；
+    存在且内容一致 → 回放原结果（含原 captureRecordId）；
+    存在但内容不同 → 40902，不修改任何记录。
+  第三步 有效性判定：先取 spawn（锁顺序第 1 步），再判挑战 expiresAt 与选项合法性；
+    过期 → 41001；选项非法 → 40001。
+  第四步 结算：判题；正确则写 capture_record 并置 challenge.status=CAPTURED，
+    答错则只追加 answer_attempt(WRONG)。
+  为什么次序不能改：见 analysis.txt 5.3（幂等必须早于过期，过期必须早于判题）。
+
+4.3 并发与重试
+  并发正确提交：两个线程同时通过幂等检查，随后在写 capture_record 时由唯一约束
+    (user_id, spawn_id) 决出唯一写入者；失败方捕获唯一冲突后回查已有记录，沿用其
+    captureRecordId，返回成功但不再新建。因此最终只有一条收录记录。
+  并发同一请求标识：同理由 answer_attempt 唯一约束兜住，失败方回查后按幂等回放。
+  锁顺序统一为“先遭遇、后挑战”，所有调用保持一致，避免交叉等待。
+  明确否定：单机内存锁、synchronized、客户端按钮禁用、先查后写，都不能替代数据库唯一约束。
+  隔离级别：READ_COMMITTED（默认），依赖唯一约束而非可重复读来保证唯一性。
+
+4.4 可测性
+  时间：注入 java.time.Clock；生产用 Clock.systemUTC()，测试用 Clock.fixed(...)。
+  取题：QuestionSource 端口，测试可用固定题库替身，生产接真实题库。
+  仓储：接口定义，测试用内存实现；接真实数据库后必须补一次唯一约束与重启查询验证。
 
 ====================================================================
-5. 接口设计
+五、数据管理设计
 ====================================================================
-以 design/interfaces.json 为准，本文件只列接口清单与主要变化说明。
-- POST /api/v1/dev/spawns            开发遭遇（仅 dev/test）
-- POST /api/v1/capture/challenge     取题
-- POST /api/v1/capture/answer        作答（challengeId, requestId, optionId）
-- GET  /api/v1/capture/challenges/{challengeId}  状态查询
-- GET  /api/v1/collection/summary    最小收藏查询
-统一：成功 {"code":0,"message":"ok","data":{}}；字段 lowerCamelCase；时间为 UTC ISO 8601。
-不泄露正确答案：题目选项只返回 optionId/text，不得包含 correctOptionId。
+5.1 字段与约束需求（建表与迁移编号由胡豪统一负责，本文只提需求）
+  spawn
+    spawn_id       主键，UUID 字符串
+    user_id        非空
+    region_id      非空，业务键，如 library_entrance
+    species_id     非空，业务键，如 siege_lion
+    source_type    非空，取值 DEV_SIMULATED / LOCATION
+    expires_at     非空，UTC
+    created_at     非空，UTC
+    索引：user_id；unique(user_id, spawn_id) 由主键可推得，不单列
+
+  challenge
+    challenge_id   主键，UUID 字符串
+    user_id        非空
+    spawn_id       非空，指向 spawn
+    question_id    非空，业务键，如 hello_world_001
+    status         非空，取值 OPEN / CAPTURED / EXPIRED
+    expires_at     非空，UTC
+    created_at     非空，UTC
+    索引：(user_id, spawn_id, status) 用于复用未过期挑战的查询
+
+  answer_attempt
+    attempt_id     主键，UUID 字符串
+    user_id        非空
+    challenge_id   非空
+    request_id     非空
+    option_id      非空
+    result         非空，取值 CORRECT / WRONG
+    submitted_at   非空，UTC
+    唯一约束：unique(user_id, request_id)   ← 幂等落地的关键
+    索引：(user_id, challenge_id, submitted_at)
+
+  capture_record
+    capture_record_id 主键，UUID 字符串
+    user_id           非空
+    spawn_id          非空
+    challenge_id      非空
+    captured_at       非空，UTC
+    唯一约束：unique(user_id, spawn_id)     ← 不能重复捕获的落地点
+    索引：(user_id, captured_at)
+
+  说明：question 与 species 属于题库与图鉴，本模块只读，不主张建表归属（questions.csv Q03）。
+
+5.2 事务边界
+  CaptureService.submit 在单一事务内完成：追加作答记录、写收录记录、更新挑战状态。
+  事务提交成功之后才构造并返回成功响应；提交前不返回、不缓存为成功。
+  答错时同样提交事务（只写作答记录），以便下次能读到这次作答历史。
+  状态查询与收藏查询为只读，不加事务注解以外的额外控制。
+
+5.3 唯一约束冲突的处理路径（必须实现，不是可选优化）
+  写 capture_record 捕获唯一冲突 → 以 (userId, spawnId) 回查 → 若存在则沿用其
+  captureRecordId，仍返回 result=CORRECT，但本次不新建记录。
+  写 answer_attempt 捕获唯一冲突 → 以 (userId, requestId) 回查 → 比较 optionId：
+  相同则回放原结果，不同则 40902。
+  两条路径都必须有对应测试（TC-02、TC-07）。
+
+5.4 访问控制
+  userId 只从认证上下文取得，任何接口都不接受请求体中的 userId。
+  所有查询条件必须带 userId，禁止“先按标识取到对象再在内存里比归属”这种容易漏判的写法。
+  他人资源一律 40401，响应中不含他人标识。
 
 ====================================================================
-6. 设计图清单（design/diagrams/）
+六、接口设计
 ====================================================================
-- 答题捕获设计类图.puml / .pdf      待绘制
-- 答题捕获设计顺序图.puml / .pdf    待绘制
-- 挑战设计状态图.puml / .pdf        待绘制
-- 答题捕获包图.puml / .pdf          待绘制
+完整机器可读定义见 design/interfaces.json；本节给字段与样例，便于调用方直接对接。
+所有接口前缀 /api/v1，认证用 Authorization: Bearer <token>。
+成功 {"code":0,"message":"ok","data":{...}}；失败 data 为 null。
+
+6.1 POST /api/v1/dev/spawns（仅 dev/test）
+  请求：{"regionId":"library_entrance","speciesId":"siege_lion"}
+  成功 data：
+  {"spawnId":"6f1c...","regionId":"library_entrance","speciesId":"siege_lion",
+   "sourceType":"DEV_SIMULATED","expiresAt":"2026-10-25T12:00:00Z"}
+  说明：sourceType 必须如实反映模拟来源，页面据此标注“模拟遇见攻城狮”。
+
+6.2 POST /api/v1/capture/challenge
+  请求：{"spawnId":"6f1c..."}
+  成功 data：
+  {"challengeId":"a92b...","spawnId":"6f1c...","speciesId":"siege_lion",
+   "speciesName":"攻城狮","questionId":"hello_world_001",
+   "questionText":"执行 print(\"hello world\") 之后，控制台会输出什么？",
+   "options":[{"optionId":"A","text":"hello world"},
+              {"optionId":"B","text":"\"hello world\"（连引号一起输出）"},
+              {"optionId":"C","text":"什么都不输出，只是定义了一个字符串"}],
+   "expiresAt":"2026-10-25T12:05:00Z"}
+  约束：data 内不得出现正确答案字段（无 correctOptionId、无 answer）。
+
+6.3 POST /api/v1/capture/answer
+  请求：{"challengeId":"a92b...","requestId":"c7d3...","optionId":"A"}
+  成功 data（答对）：
+  {"challengeId":"a92b...","requestId":"c7d3...","result":"CORRECT",
+   "captureRecordId":"5e88...","speciesId":"siege_lion"}
+  成功 data（答错）：
+  {"challengeId":"a92b...","requestId":"c7d3...","result":"WRONG",
+   "captureRecordId":null,"speciesId":"siege_lion"}
+  失败：40902（同 requestId 不同内容）、41001（过期且未处理）、40401（他人或不存在）、
+    40001（参数错误，含无效选项）。
+
+6.4 GET /api/v1/capture/challenges/{challengeId}
+  成功 data：
+  {"challengeId":"a92b...","status":"CAPTURED","captureRecordId":"5e88...",
+   "expiresAt":"2026-10-25T12:05:00Z",
+   "lastAttempt":{"requestId":"c7d3...","result":"CORRECT","submittedAt":"2026-10-25T12:01:30Z"}}
+  status 取值 OPEN / CAPTURED / EXPIRED；lastAttempt 无作答时为 null。
+
+6.5 GET /api/v1/collection/summary
+  成功 data：{"collectedSpeciesCount":1,"totalSpeciesCount":3,"captureCount":1}
+  说明：本阶段最小收藏查询，用于验证“重启后仍可查询”。
+
+6.6 错误码与 HTTP 映射
+  0      成功                          200
+  40001  参数错误                      400
+  40401  资源不存在或不属于当前用户      404
+  40902  同一请求标识内容冲突            409
+  41001  挑战或遭遇已过期                410
+  统一在 Controller 之外的异常映射处处理，业务代码只抛 ApiException(code, message)。
 
 ====================================================================
-7. 未实现与模拟部分
+七、方法签名清单
 ====================================================================
-待填（本阶段允许开发遭遇模拟；真实判题、存储与查询不得用 Fake 冒充）
+签名以本表为准；实现时参数类型可为 record，本表给语义类型。
+
+SpawnService
+  Spawn createDevSpawn(String userId, String regionId, String speciesId)
+    前置：环境为 dev/test，业务键合法
+    后置：写入一条 spawn，sourceType=DEV_SIMULATED
+    异常：40001（业务键非法）、40301 环境不允许（实现时用 40401 亦可，需与胡豪确认）
+  Spawn requireUsable(String userId, String spawnId)
+    前置：无
+    后置：返回可用 spawn；不存在/他人/过期分别抛 40401/40401/41001
+
+CaptureService
+  ChallengeResponse startChallenge(String userId, String spawnId)
+    前置：spawn 可用且该用户尚未收录
+    后置：复用未过期的 OPEN 挑战，或新建 OPEN 挑战
+    异常：40401、41001
+  AnswerResponse submit(String userId, SubmitAnswerCommand cmd)
+    前置：cmd 三项非空
+    后置：按 4.2 四步处理后，事务提交完成才返回
+    异常：40401、40001、40902、41001
+  ChallengeStatusResponse status(String userId, String challengeId)
+    前置：无
+    后置：只读返回；无副作用
+    异常：40401
+
+CollectionService
+  CollectionSummary summary(String userId)
+    前置：无
+    后置：只读统计
+
+SubmitAnswerCommand(String challengeId, String requestId, String optionId)
+
+====================================================================
+八、设计图说明
+====================================================================
+8.1 图1 答题捕获包图
+  七个包：web、service、repository、port、domain、dto、error，另有旧演示包 demo 保留。
+  依赖方向单一：web → service → repository/port → domain；web 与 service 都可用 dto 与 error；
+  demo 不与新包双向依赖，只在响应体形态上保持一致，旧路由独立保留。
+  这张图的作用是防止有人把业务规则写进 Controller，或让 Repository 反向依赖 Service。
+
+8.2 图2 答题捕获设计类图
+  三层类加两类技术对象：
+  控制层三个 Controller，各自只连自己的 Service；
+  业务层三个 Service，CaptureService 依赖四个仓储加 QuestionSource 与 Clock；
+  数据访问层四个仓储接口加两个端口，Clock 标注为 JDK 类型；
+  底部复列四个领域实体，只写关键属性，表示它们被持久化并带 userId 等外键。
+  注中写明 submit 的四步次序，以及 findOpenByUserAndSpawn 的用途（复用未过期挑战）。
+
+8.3 图3 答题捕获设计顺序图
+  按真实对象画出答对主流程，并用三个 group 标出第 1-2 步、第 3 步、第 4 步的分界，
+  让“归属与幂等 → 有效性 → 结算”的次序在图上一目了然。
+  幂等分支画了“已存在且内容相同”与“已存在但内容不同”两条返回路径。
+  结算分支里嵌了唯一约束冲突的处理：冲突 → 回查 → 沿用已有记录，并注明这是并发下
+  只产生一条收录的实现路径。
+  事务起止用注记标在 CaptureService 生命线上，强调提交后才返回。
+
+8.4 图4 挑战设计状态图
+  与分析状态图同名同状态，差别在设计层落到了持久化动作：
+  entry 动作写什么、exit 动作停什么、过期如何惰性落库。
+  关键设计选择写在注里：过期用惰性判定而非定时任务，代价是库中可能短暂存在
+  “已过期但仍标 OPEN”的行，因此任何有效性判定都必须是 clock.instant() 与 expiresAt 比较，
+  不允许只看 status。
+
+====================================================================
+九、测试设计
+====================================================================
+9.1 固定时钟
+  所有涉及时间的用例使用 Clock.fixed，直接构造“刚好在有效期边界前 1 秒”“边界当刻”
+  “边界后 1 秒”三个时刻，不 sleep、不等真实时间。
+9.2 用例与规则、接口的对应
+  test-cases.csv 中 TC-01～TC-12 已按 BR 编号与接口对齐。映射要点：
+  TC-01/TC-08 → BR-06（事务提交与持久化）
+  TC-02/TC-03 → BR-03（幂等与冲突）
+  TC-04 → BR-04（答错可重试）
+  TC-05 → BR-05（无效选项不消耗）
+  TC-06 → BR-07（过期边界：前 1 秒、当刻、后 1 秒）
+  TC-07 → BR-02（并发只产生一条收录）
+  TC-09 → BR-08（用户隔离）
+  TC-10 → BR-09（不泄露答案）
+  TC-11 → BR-07（已处理请求在过期后仍可回放，幂等优先于过期）
+  TC-12 → BR-02（同一遭遇复用未过期挑战，不重复建挑战）
+9.3 未接真实数据库时的可执行范围
+  纯规则与边界：全部可执行（用内存仓储与固定时钟）。
+  唯一约束与重启后查询：未接真库前标“未执行”，不用内存实现冒充。
+  用户隔离：认证未到位前用测试替身注入 userId，标“模拟”。
+9.4 每条测试的记录要求
+  按指南六步写：源码提交号与环境、独立测试数据、准确输入与操作、先写预期、
+  保存实际结果、标通过/失败/未执行。失败定位到本人代码，跨模块只联系直接作者。
+
+====================================================================
+十、未实现与模拟标注
+====================================================================
+本阶段没有可运行实现。design/interfaces.json 中全部接口 implemented=false。
+开发遭遇：模拟来源，页面必须标注，正式环境不得开放。
+题库与物种目录：端口 + 测试替身；真实判题、真实存储、真实查询不得用 Fake 冒充。
+最小骨架与可编译实现：10/31 交付（阶段键 foundation），届时本文件补“实现对照”。
+
+====================================================================
+十一、缺项与依赖（实测结论，不是推测）
+====================================================================
+缺项1 事务与持久化依赖缺失。
+  实测：server/pom.xml 依赖树只有 spring-boot-starter-web 与 spring-boot-starter-test，
+  没有 spring-tx、spring-jdbc、JPA、H2。因此 @Transactional 目前无法使用。
+  影响：5.2 的事务边界、5.3 的唯一约束冲突处理、TC-07/TC-08 都无法落地。
+  责任人：胡豪（公共依赖与迁移）。建议：由胡豪在公共配置中加入持久化与事务依赖，
+  本模块按接口实现，不改 pom。
+缺项2 认证入口未提供（责任人 闫昕）。影响 BR-08 的真实验证，暂用替身并标注模拟。
+缺项3 题库与物种初始数据归属未定（责任人 闫昕）。影响取题来源与 TC-10 的数据准备。
+缺项4 建表与迁移编号规则未定（责任人 胡豪）。本文 5.1 只给字段与约束需求。
+缺项5 本机未安装 Flutter，客户端侧无法执行（不影响后端接口验证，可用
+  Invoke-WebRequest 直接验证）。

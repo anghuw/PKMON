@@ -1,0 +1,135 @@
+@startuml 答题捕获设计类图
+' 孙虹毅 · 第二阶段设计 · 设计类图
+' 在分析类图上补 界面/控制/数据/技术对象；领域对象只列关键属性，完整属性见 analysis.txt
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam arrowColor #5B6B7C
+skinparam class {
+  BackgroundColor #F5F8FB
+  BorderColor #6F97B8
+  HeaderBackgroundColor #EAF2F9
+  FontColor #1F2A37
+}
+skinparam stereotypeCBackgroundColor #DCE8F2
+
+' ---------- 控制层 ----------
+package "控制层（设计新增）" {
+  class CaptureController <<Controller>> {
+    + startChallenge(userId, StartChallengeRequest) : ApiEnvelope<ChallengeResponse>
+    + submitAnswer(userId, SubmitAnswerRequest) : ApiEnvelope<AnswerResponse>
+    + status(userId, challengeId) : ApiEnvelope<ChallengeStatusResponse>
+  }
+  class DevSpawnController <<Controller>> {
+    + createDevSpawn(userId, CreateSpawnRequest) : ApiEnvelope<SpawnResponse>
+  }
+  class CollectionController <<Controller>> {
+    + summary(userId) : ApiEnvelope<CollectionSummaryResponse>
+  }
+}
+
+' ---------- 业务层 ----------
+package "业务层（设计新增）" {
+  class SpawnService <<Service>> {
+    - clock : Clock
+    - spawns : SpawnRepository
+    + createDevSpawn(userId, regionId, speciesId) : Spawn
+    + requireUsable(userId, spawnId) : Spawn
+  }
+  class CaptureService <<Service>> {
+    - clock : Clock
+    - spawns : SpawnRepository
+    - challenges : ChallengeRepository
+    - attempts : AnswerAttemptRepository
+    - records : CaptureRecordRepository
+    - questions : QuestionSource
+    + startChallenge(userId, spawnId) : ChallengeResponse
+    + submit(userId, SubmitAnswerCommand) : AnswerResponse  «事务»
+    + status(userId, challengeId) : ChallengeStatusResponse
+  }
+  class CollectionService <<Service>> {
+    - records : CaptureRecordRepository
+    + summary(userId) : CollectionSummary
+  }
+}
+
+' ---------- 数据访问与端口 ----------
+package "数据访问与端口（设计新增）" {
+  interface SpawnRepository {
+    + findById(spawnId) : Optional<Spawn>
+    + save(spawn) : Spawn
+  }
+  interface ChallengeRepository {
+    + findById(challengeId) : Optional<Challenge>
+    + findOpenByUserAndSpawn(userId, spawnId) : Optional<Challenge>
+    + save(challenge) : Challenge
+  }
+  interface AnswerAttemptRepository {
+    + findByUserAndRequestId(userId, requestId) : Optional<AnswerAttempt>
+    + save(attempt) : AnswerAttempt
+  }
+  interface CaptureRecordRepository {
+    + findByUserAndSpawn(userId, spawnId) : Optional<CaptureRecord>
+    + save(record) : CaptureRecord
+  }
+  interface QuestionSource <<端口>> {
+    + findBySpecies(speciesId) : Question
+  }
+  class Clock <<JDK>> {
+    + instant() : Instant
+  }
+}
+
+' ---------- 领域对象（来自分析） ----------
+package "领域对象（来自分析，设计补充持久化标识）" {
+  class Spawn <<实体>> {
+    spawnId; userId; regionId; speciesId
+    sourceType; expiresAt
+  }
+  class Challenge <<实体>> {
+    challengeId; userId; spawnId; questionId
+    status; expiresAt
+  }
+  class AnswerAttempt <<实体>> {
+    requestId; userId; challengeId; optionId
+    result; submittedAt
+  }
+  class CaptureRecord <<实体>> {
+    captureRecordId; userId; spawnId; challengeId; capturedAt
+  }
+}
+
+' ---------- 依赖关系 ----------
+CaptureController --> CaptureService
+DevSpawnController --> SpawnService
+CollectionController --> CollectionService
+
+CaptureService --> SpawnRepository
+CaptureService --> ChallengeRepository
+CaptureService --> AnswerAttemptRepository
+CaptureService --> CaptureRecordRepository
+CaptureService --> QuestionSource
+CaptureService --> Clock
+SpawnService --> SpawnRepository
+SpawnService --> Clock
+CollectionService --> CaptureRecordRepository
+
+SpawnRepository ..> Spawn
+ChallengeRepository ..> Challenge
+AnswerAttemptRepository ..> AnswerAttempt
+CaptureRecordRepository ..> CaptureRecord
+QuestionSource ..> Challenge : 提供 questionId
+
+note right of CaptureService
+  submit 的职责：归属校验 → 幂等判定
+  → 有效性判定 → 结算。四个步骤的次序
+  见 analysis.txt 5.3，设计阶段不改变。
+end note
+
+note bottom of ChallengeRepository
+  findOpenByUserAndSpawn 用于复用未过期的挑战，
+  避免同一遭遇无限重复取题。
+end note
+@enduml

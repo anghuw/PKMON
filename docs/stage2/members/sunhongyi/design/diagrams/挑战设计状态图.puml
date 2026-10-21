@@ -1,0 +1,56 @@
+@startuml 挑战设计状态图
+' 孙虹毅 · 第二阶段设计 · 设计状态图
+' 在分析状态图上补：状态如何持久化、过期如何判定、事务与唯一约束的位置
+' 对象：Challenge（问答挑战）
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam arrowColor #5B6B7C
+skinparam state {
+  BackgroundColor #EAF2F9
+  BorderColor #6F97B8
+  FontColor #1F2A37
+  AttributeFontColor #4A6B87
+}
+
+[*] --> OPEN : 请求答题挑战\n[遭遇可用、未过期、该用户尚未收录]\n/ 写入 challenge(status=OPEN, expiresAt)
+
+state "OPEN（挑战进行中）" as OPEN {
+  OPEN : entry / 持久化 status=OPEN 与 expiresAt
+  OPEN : do / 接受作答，每次作答追加一条 answer_attempt
+  OPEN : exit / 停止接受新作答
+}
+
+state "CAPTURED（已捕获）" as CAPTURED {
+  CAPTURED : entry / 写入 capture_record 并更新 status\n（与收录写入同一事务）
+  CAPTURED : do / 可查询原结果与收录记录
+}
+
+state "EXPIRED（已过期）" as EXPIRED {
+  EXPIRED : entry / 惰性置位：读取或作答时判定超过 expiresAt 后写入 status
+  EXPIRED : do / 已处理的请求仍可回放原结果
+}
+
+OPEN --> CAPTURED : 作答结算 CORRECT\n[判题正确且 capture_record 无 (user_id, spawn_id) 记录]\n/ 同一事务：写收录 + 置 CAPTURED；唯一约束冲突则回查已有记录
+
+OPEN --> OPEN : 作答结算 WRONG\n/ 追加 answer_attempt(result=WRONG)，challenge 不改写
+
+OPEN --> EXPIRED : 时间超过 expiresAt\n[无成功捕获]\n/ 惰性判定并落库为 EXPIRED，不引入定时任务
+
+CAPTURED --> [*]
+EXPIRED --> [*]
+
+note bottom of EXPIRED
+  设计选择：过期用惰性判定而非定时任务。
+  理由：减少一个后台组件与运维变量；
+  代价是库中可能短暂存在“已过期但仍标 OPEN”的行，
+  因此一切有效性判定必须以 clock.instant() 与 expiresAt 比较，
+  不能只看 status 字段。
+end note
+
+note bottom of CAPTURED
+  进入 CAPTURED 的前提是 capture_record 已写入成功；
+  只有状态改变了而记录没写入，不算捕获。
+end note
+@enduml

@@ -1,6 +1,14 @@
 analysisId,分析对象或规则,设计补充,变更类型,属于哪部分设计,变更理由,是否模拟,对应接口,对应测试
-A-01,Challenge 负责一次问答挑战,增加 CaptureController、CaptureService、ChallengeRepository,新增,控制驱动,Controller 接请求、Service 执行业务与事务、Repository 保存状态，分析图保留业务对象,否,POST /api/v1/capture/challenge,TC-01
-A-02,一次遭遇最多成功捕获一次,capture_record 上 userId+spawnId 唯一约束 + 事务,新增,数据管理,多次点击或网络重试可能并发，仅客户端禁用按钮不足以保证唯一,否,POST /api/v1/capture/answer,TC-05
-A-03,同一业务操作重试不重复结算,answer_attempt 以 user+requestId 唯一，同内容返回原结果、不同内容返回冲突,新增,数据管理,请求超时不等于失败，需可恢复且不可重复发奖,否,POST /api/v1/capture/answer,TC-02
-A-04,答题结果可能暂时未知,界面“结果待确认” + 状态查询接口,新增,人机交互,请求超时先查状态，避免客户端自行发奖,否,GET /api/v1/capture/challenges/{challengeId},TC-06
-A-05,挑战具有有效期,Clock 抽象注入 + 固定时钟测试,新增,控制驱动,过期边界需可重复验证，不能依赖真实时间,否,POST /api/v1/capture/answer,TC-04
+A-01,Challenge 负责一次问答挑战,增加 CaptureController、CaptureService、ChallengeRepository 分层,新增,控制驱动,Controller 接请求、Service 执行业务与事务、Repository 保存状态，分析图仍保留业务对象,否,POST /api/v1/capture/challenge,TC-01
+A-02,一次遭遇最多成功捕获一次,capture_record 唯一约束 (user_id、spawn_id) + 冲突回查沿用原记录,新增,数据管理,多次点击或网络重试可能并发，仅客户端禁用按钮不足以保证唯一,否,POST /api/v1/capture/answer,TC-07
+A-03,答题结果可能暂时未知,界面增加“结果待确认”，调用状态查询,新增,人机交互,请求超时不等于失败；使用同一 requestId 恢复，避免重复结算,否,GET /api/v1/capture/challenges/{challengeId},TC-06
+A-04,有效期边界需可验证,注入 java.time.Clock，生产 systemUTC、测试 Clock.fixed,新增,控制驱动,过期与边界不能依赖真实时间，也不能用 sleep 测试,否,POST /api/v1/capture/answer,TC-06
+A-05,题库只读且由他人主责,QuestionSource 端口 + 物种目录端口,新增,问题域,题库未就位时可先推进；但真实判题不得由替身冒充,是（仅单元测试替身）,POST /api/v1/capture/challenge,TC-10
+A-06,同一业务操作重试不重复结算,answer_attempt 唯一约束 (user_id、request_id)，同内容回放、异内容 40902,新增,数据管理,幂等必须由数据库约束兜住，先查后写在并发下会双写,否,POST /api/v1/capture/answer,TC-02
+A-07,WRONG 是作答结果不是挑战状态,challenge.status 取值集合只含 OPEN/CAPTURED/EXPIRED，答错只追加作答记录,调整,数据管理,避免把作答结果混进状态机，导致状态不可逆,否,POST /api/v1/capture/answer,TC-04
+A-08,Challenge 有过期概念,过期改为惰性判定：读取或作答时比较 clock.instant() 与 expiresAt 再落库,调整,数据管理,不引入定时任务与额外运维变量；代价是需要每次比较时间而不能只看 status,否,GET /api/v1/capture/challenges/{challengeId},TC-06
+A-09,User 是归属主体,弱化为认证上下文提供的 userId 值，职责落到各实体 user_id 字段与 CollectionService,调整,问题域,本模块不维护用户实体，避免与闫昕的账号模块重复建模,否,全部接口,TC-09
+A-10,统一响应与失败语义,统一 code/message/data 与错误码 40001/40401/40902/41001 及 HTTP 映射,新增,控制驱动,HTTP 状态与业务 code 都要检查；客户端需区分不存在、冲突、过期,否,全部接口,TC-03
+A-11,Spawn 只有可用性判定,不建状态机，用 requireUsable 判定可用性并区分 40401/41001,调整,问题域,两状态伪状态机会模糊重点,否,POST /api/v1/dev/spawns,TC-01
+A-12,旧 Demo 仍在被页面使用,保留 demo 包与旧路由，业务层只认统一字段，转换放适配层,迁移,人机交互,避免两套字段扩散到业务代码；启动类改动归胡豪,否,/api/v1/demo/*,TC-01
+A-13,同一遭遇重复取题无业务价值,ChallengeRepository.findOpenByUserAndSpawn 复用未过期的 OPEN 挑战,新增,数据管理,一题一种精灵前提下重复取题只增加记录量,否,POST /api/v1/capture/challenge,TC-01

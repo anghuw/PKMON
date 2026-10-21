@@ -1,0 +1,90 @@
+@startuml 答题捕获包图
+' 孙虹毅 · 第二阶段设计 · 包图
+' 表达包的目的、包含的模型与依赖方向；不画具体类细节，类细节见设计类图
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam arrowColor #5B6B7C
+skinparam packageStyle rectangle
+skinparam package {
+  BackgroundColor #F5F8FB
+  BorderColor #6F97B8
+  FontColor #1F3D57
+}
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #B9C7D4
+  FontColor #1F2A37
+}
+
+package "edu.pkmon.capture.web" as web {
+  class CaptureController
+  class DevSpawnController
+  class CollectionController
+}
+
+package "edu.pkmon.capture.service" as service {
+  class CaptureService
+  class SpawnService
+  class CollectionService
+}
+
+package "edu.pkmon.capture.repository" as repo {
+  interface SpawnRepository
+  interface ChallengeRepository
+  interface AnswerAttemptRepository
+  interface CaptureRecordRepository
+}
+
+package "edu.pkmon.capture.port" as port {
+  interface QuestionSource
+  interface SpeciesCatalog
+}
+
+package "edu.pkmon.capture.domain" as domain {
+  class Spawn
+  class Challenge
+  class AnswerAttempt
+  class CaptureRecord
+  class Question
+}
+
+package "edu.pkmon.capture.dto" as dto {
+  class "请求与响应 DTO（record）" as Dtos
+}
+
+package "edu.pkmon.capture.error" as error {
+  enum ApiErrorCode
+  class ApiException
+}
+
+package "edu.pkmon.demo（旧演示，保留）" as demo {
+  class DemoController
+  class DemoService
+}
+
+web --> service : 调用业务
+web --> dto : 出入参
+web --> error : 抛出与映射
+service --> repo : 读写下层
+service --> port : 取题与物种目录
+service --> domain : 业务规则
+service --> error
+repo --> domain : 持久化对象
+port --> domain
+demo ..> web : 旧路由独立保留，共用统一响应体
+
+note bottom of port
+  端口用于隔离外部依赖：
+  QuestionSource 取题、SpeciesCatalog 查物种。
+  题库未就位时可用测试替身，
+  但真实判题不得由替身冒充。
+end note
+
+note bottom of repo
+  仓储先以接口定义。
+  持久化依赖未就位时提供内存实现，
+  仅用于单元测试，不冒充真实存储。
+end note
+@enduml
