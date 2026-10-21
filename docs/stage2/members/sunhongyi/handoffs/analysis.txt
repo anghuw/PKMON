@@ -1,0 +1,59 @@
+阶段：analysis（10/20-10/24）
+作者：孙虹毅
+本人分支：design/sunhongyi-stage2
+成果提交号（完整）：23d4957aaa1f36d245f5c0a2f2e5471abaf0cae8
+状态：仅个人分支
+主线合并提交号：未合入，暂不填
+
+一、文件路径
+  docs/stage2/members/sunhongyi/analysis/analysis.txt
+  docs/stage2/members/sunhongyi/analysis/questions.csv
+  docs/stage2/members/sunhongyi/analysis/diagrams/答题捕获用况图.puml 与 .png
+  docs/stage2/members/sunhongyi/analysis/diagrams/答题捕获分析类图.puml 与 .png
+  docs/stage2/members/sunhongyi/analysis/diagrams/答题捕获顺序图.puml 与 .png
+  docs/stage2/members/sunhongyi/analysis/diagrams/挑战状态图.puml 与 .png
+  docs/stage2/members/sunhongyi/evidence/environment.txt
+  docs/stage2/members/sunhongyi/design/ 下四份设计骨架（interfaces.json、test-cases.csv 等，
+  属 10/29 交付，提前落位，内容仍是骨架）
+
+二、阅读步骤
+  1) 直接阅读 analysis.txt：第一节有图表索引，每张图的中文解释在 3.7、4.1、5.1、6.1；
+  2) 图源为 PlantUML 文本，可用任意 PlantUML 工具重新渲染；PNG 可直接用图片阅读器打开；
+  3) 依赖与待回复问题看 questions.csv（8 条，均带责任人与建议）；
+  4) 环境与源码基线看 evidence/environment.txt。
+
+三、所用依赖提交号
+  本人阅读与运行所用的 main 提交：d847572ddaefa30caf38902f10505297be1e0964
+  该版本包含上传源码 c71afce（攻城狮版客户端与后端完整源码）。
+  尚未读取其他成员在 10/25 之后交付的分析文件。
+
+四、本人测试（本阶段只有环境级实测，业务代码尚未开始）
+  输入：在 server 目录执行 mvn -B test
+  预期：BUILD SUCCESS，且测试数不为 0
+  实际：Tests run: 8, Failures: 0, Errors: 0, Skipped: 0；BUILD SUCCESS；
+        耗时 27.955 s，2026-10-21T20:34:44+08:00
+  证据：evidence/environment.txt 第 4 节第 [7] 条
+  说明：这只证明旧 Demo 基线可构建，不代表第二阶段业务已经实现。
+
+五、真实／模拟／未执行
+  真实：仓库克隆与分支建立、基线构建与测试执行、四张图的实际渲染与目视核对。
+  模拟：无。本阶段不涉及业务运行。
+  未执行：真实数据库验证、真实认证条件下的用户隔离、客户端联调、题库初始数据核对。
+    原因见下节缺项；上述各项均不标为通过。
+
+六、缺项、影响及后续处理
+  缺项1 持久化与迁移依赖未就位（责任人 胡豪，见 questions.csv Q02、Q08）。
+    影响：BR-02（同一遭遇至多一条收录）、BR-06（事务提交才算入账）只有业务结论，无真实证据。
+    可继续：分析与设计、接口骨架、纯规则与固定时钟测试。
+  缺项2 认证入口未提供（责任人 闫昕，Q01）。
+    影响：userId 只能以测试替身注入，真实用户隔离未验证。
+  缺项3 题库初始数据归属未定（责任人 闫昕，Q03）。
+  缺项4 本机未安装 Flutter，客户端侧无法执行（不影响后端）。
+  后续：10/25 起进入 design 阶段，先按 questions.csv 逐条催办直接责任人；
+    未到位部分在设计文档中标注为模拟，不用 Fake 冒充真实判分、存储与查询。
+
+七、需要调用方注意
+  接口与规则以 design/interfaces.json 的候选约定为准，其中 implemented 目前均为 false，
+  表示尚未实现，不能当作可调用接口。字段若有破坏性变化，由本人更新该文件并在下次交接写明。
+  分析阶段的两条判定次序结论（幂等优先于过期、过期优先于判题）请在设计与测试中保持，
+  见 analysis.txt 第 5.3 节。
