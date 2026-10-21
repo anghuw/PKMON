@@ -1,0 +1,78 @@
+阶段：design（10/25-10/28）
+作者：孙虹毅
+本人分支：design/sunhongyi-stage2
+成果提交号（完整）：48f0b7726fdb907fba39d410d59755b84b4a9948
+状态：仅个人分支
+主线合并提交号：未合入，暂不填
+
+一、文件路径
+  docs/stage2/members/sunhongyi/design/design.txt
+  docs/stage2/members/sunhongyi/design/interfaces.json
+  docs/stage2/members/sunhongyi/design/analysis-to-design.csv
+  docs/stage2/members/sunhongyi/design/test-cases.csv
+  docs/stage2/members/sunhongyi/design/diagrams/答题捕获包图.puml 与 .png
+  docs/stage2/members/sunhongyi/design/diagrams/答题捕获设计类图.puml 与 .png
+  docs/stage2/members/sunhongyi/design/diagrams/答题捕获设计顺序图.puml 与 .png
+  docs/stage2/members/sunhongyi/design/diagrams/挑战设计状态图.puml 与 .png
+  docs/stage2/members/sunhongyi/evidence/design-validation.txt
+  另：analysis/questions.csv 的 Q02 措辞修正（去掉了会破坏 CSV 列对齐的英文逗号）。
+
+二、阅读步骤
+  1) 先读 design.txt 第一节“从分析到设计的变化总览”，八条变化各有理由；
+  2) 接口字段与 JSON 样例看第四节第六节，机器可读版在 interfaces.json；
+  3) 数据与约束看第五节 5.1～5.3，事务与并发看 4.3、5.2；
+  4) 四张设计图的文字说明在第八节 8.1～8.4；
+  5) 测试设计与规则对应在第九节，用例表在 test-cases.csv（TC-01～TC-12）；
+  6) 技术探路的实测结论在 evidence/design-validation.txt。
+
+三、所用依赖提交号
+  本人阅读与运行所用的 main 提交：d847572ddaefa30caf38902f10505297be1e0964
+  本人分析成果提交：23d4957aaa1f36d245f5c0a2f2e5471abaf0cae8
+  尚未读取其他成员在 10/29 之后交付的设计文件。
+
+四、本人测试（本阶段为依赖与可行性实测）
+  输入1：mvn -B dependency:tree（工作目录 server）
+  预期1：确认是否存在事务与持久化依赖
+  实际1：只有 spring-boot-starter-web 与 spring-boot-starter-test；无 spring-tx、spring-jdbc、
+        JPA、H2；JUnit 5.12.2 与 Mockito 5.17.0 可用
+  输入2：java -jar plantuml.jar -charset UTF-8 -tpng *.puml
+  预期2：八张图（分析四张、设计四张）导出成功且中文正常
+  实际2：全部成功，逐张目视核对无乱码、无连线压字
+  证据：evidence/design-validation.txt；分析图与设计图见各自 diagrams/ 目录
+  未执行：本模块单元测试（代码尚未编写，10/31 起）、真实事务与唯一约束验证（依赖未到位）
+
+五、真实／模拟／未执行
+  真实：依赖树实测、JDK 21 构建与测试执行、八张图的渲染与目视核对、接口 JSON 与三份 CSV 的
+    格式校验（JSON 可解析为 5 个接口；CSV 各行列数一致）。
+  模拟：无。设计阶段不产生业务运行数据。
+  未执行：事务边界、唯一约束、并发唯一性、重启后查询、真实用户隔离、客户端联调。
+    以上在 test-cases.csv 中均标“待执行”或“待执行（待接真库）”，不改写为通过。
+
+六、关键设计结论（调用方需要遵守）
+  1) 判定的四步次序固定：归属校验 → 幂等判定 → 有效性判定 → 结算。次序改动会破坏
+     “已成功请求在过期后仍返回原结果”的语义，见 design.txt 4.2。
+  2) 唯一性只认数据库约束：capture_record(user_id, spawn_id) 与
+     answer_attempt(user_id, request_id)；冲突时回查已有记录并沿用其标识，不重复发奖。
+     内存锁、按钮禁用、先查后写都不能替代。
+  3) 过期用惰性判定，不引入定时任务。因此任何有效性判断必须比较 clock.instant() 与
+     expiresAt，不允许只看 status 字段。
+  4) userId 只从认证上下文取得，接口不接受请求体传入 userId；他人资源统一 40401。
+  5) 题目响应不得包含任何答案字段。
+
+七、缺项、影响及后续处理
+  缺项1 事务与持久化依赖缺失（责任人 胡豪，questions.csv Q02、Q08）
+    实测：pom 依赖树无 spring-tx / spring-jdbc / JPA / H2，@Transactional 当前不可用。
+    影响：design.txt 5.2、5.3 与 TC-07、TC-08 无法落地。
+    建议：由胡豪在公共依赖中加入事务与持久化；本模块不改 pom。
+  缺项2 认证入口未提供（责任人 闫昕，Q01）：userId 暂用测试替身，TC-09 标模拟。
+  缺项3 题库与物种初始数据归属未定（责任人 闫昕，Q03）：影响取题来源与 TC-10 数据准备。
+  缺项4 迁移编号规则未定（责任人 胡豪）：5.1 只给字段与约束需求，未给 DDL。
+  缺项5 本机未安装 Flutter：不影响后端接口验证。
+  后续（10/31 foundation）：在 capture 包内落地可编译骨架与接口签名；被依赖阻断的路径
+    返回明确错误，不做假实现、不发虚假奖励。届时 interfaces.json 的 implemented 改为实际状态。
+
+八、需要调用方注意
+  interfaces.json 中所有接口 implemented 仍为 false，表示尚未实现，不可当作可调用接口。
+  字段若需破坏性变更，由本人更新该文件并在下次交接写明调用方要改哪里。
+  与本模块字段相关的客户端适配点（旧演示 name/question/options.id/success 转换）
+  见 design.txt 3.3，由冉昕霖的网络适配层处理，业务层不兼容旧字段名。
