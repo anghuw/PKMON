@@ -1,0 +1,58 @@
+@startuml 答题捕获顺序图
+' 孙虹毅 · 第二阶段分析 · 概念层顺序图
+' 正常答对主流程 + 关键异常分支；只出现业务对象，不出现 Controller / Repository
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequence {
+  ArrowColor #5B6B7C
+  ParticipantBackgroundColor #F5F8FB
+  ParticipantBorderColor #6F97B8
+  ParticipantFontColor #1F2A37
+  LifeLineBorderColor #B9C7D4
+  GroupBorderColor #6F97B8
+  GroupHeaderFontColor #1F3D57
+}
+
+actor 用户 as User
+participant "答题捕获\n（系统边界）" as Biz
+participant "Challenge\n挑战" as Ch
+participant "Question\n题目" as Q
+participant "AnswerAttempt\n答题请求" as At
+participant "CaptureRecord\n捕获记录" as CR
+
+User -> Biz : 提交作答(challengeId, requestId, optionId)
+Biz -> Ch : 请求结算本次作答
+Ch -> Ch : 校验状态、有效期与作答合法性
+
+alt 挑战已过期且该请求未曾处理
+  Ch --> Biz : 拒绝：挑战已过期
+  Biz --> User : 41001，不产生收录记录
+else 选项不属于该题
+  Ch --> Biz : 拒绝：参数错误
+  Biz --> User : 40001，挑战未被消耗
+else 同一 requestId 已处理且内容一致
+  Ch --> Biz : 原处理结果
+  Biz --> User : 返回原结果，不新增记录
+else 同一 requestId 但内容不同
+  Ch --> Biz : 冲突
+  Biz --> User : 40902，原记录不被修改
+else 新的有效作答
+  Ch -> Q : 判定所选选项
+  Q --> Ch : CORRECT / WRONG
+  alt 结果 CORRECT 且该遭遇尚未收录
+    Ch -> CR : 创建唯一收录记录
+    Ch -> Ch : 置 status 为 CAPTURED
+    Biz --> User : CORRECT + captureRecordId（事务提交后返回）
+  else 结果 WRONG
+    Ch -> At : 记录本次 WRONG 作答
+    Biz --> User : WRONG、captureRecordId 为空，status 仍为 OPEN
+  end
+end
+
+note over User, CR
+  HTTP 成功不等于捕获成功：
+  以是否产生 CaptureRecord
+  且事务已提交为准。
+end note
+@enduml

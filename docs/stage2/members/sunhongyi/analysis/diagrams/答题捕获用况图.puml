@@ -1,0 +1,43 @@
+@startuml 答题捕获用况图
+' 孙虹毅 · 第二阶段分析 · 用况图
+' 表达用户目标，不把按钮画成用况
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam actorStyle awesome
+skinparam arrowColor #5B6B7C
+skinparam usecase {
+  BackgroundColor #F5F8FB
+  BorderColor #6F97B8
+  FontColor #1F2A37
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #B9C7D4
+  FontColor #1F2A37
+}
+left to right direction
+
+actor 用户 as User
+actor "遭遇来源\n（开发模拟）" as Src
+actor "题库" as Bank
+
+rectangle "PKMon 答题捕获与精灵收录" {
+  usecase "UC-C5\n查看收藏概览" as UC5
+  usecase "UC-C4\n查询挑战状态" as UC4
+  usecase "UC-C3\n提交作答" as UC3
+  usecase "UC-C2\n请求答题挑战" as UC2
+  usecase "UC-C1\n发起开发遭遇" as UC1
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+
+Src --> UC1 : 提供遭遇机会（模拟来源须标注）
+Bank --> UC2 : 提供题目，不向用户泄露答案
+UC3 ..> UC4 : 客户端结果待确认时改用状态查询
+@enduml

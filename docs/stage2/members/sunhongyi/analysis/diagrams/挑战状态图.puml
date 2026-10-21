@@ -1,0 +1,52 @@
+@startuml 挑战状态图
+' 孙虹毅 · 第二阶段分析 · Challenge 状态图
+' 对象：Challenge（问答挑战）。Spawn 只有有效期、无状态迁移，故不出状态图，见 analysis.txt 4.4
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam arrowColor #5B6B7C
+skinparam state {
+  BackgroundColor #EAF2F9
+  BorderColor #6F97B8
+  FontColor #1F2A37
+  AttributeFontColor #4A6B87
+}
+
+[*] --> OPEN : 请求答题挑战\n[遭遇可用且未过期、该用户尚未收录该遭遇]\n/ 生成 challengeId，计算 expiresAt
+
+state "OPEN（挑战进行中）" as OPEN {
+  OPEN : entry / 返回题干与选项（不含正确答案）
+  OPEN : do / 接受作答并累计作答记录
+  OPEN : exit / 停止接受新作答
+}
+
+state "CAPTURED（已捕获）" as CAPTURED {
+  CAPTURED : entry / 该遭遇对本用户不再可挑战
+  CAPTURED : do / 可查询原结果与收录记录
+}
+
+state "EXPIRED（已过期）" as EXPIRED {
+  EXPIRED : entry / 不再接受新作答
+  EXPIRED : do / 已处理的请求仍可读取原结果
+}
+
+OPEN --> CAPTURED : 作答结果 CORRECT\n[该遭遇对本用户尚无收录记录]\n/ 创建唯一 CaptureRecord 并置 CAPTURED（同一事务）
+
+OPEN --> OPEN : 作答结果 WRONG\n/ 记录 WRONG 作答，保持 OPEN，允许新作答重试
+
+OPEN --> EXPIRED : 时间超过 expiresAt\n[无成功捕获]\n/ 不再接受新作答
+
+CAPTURED --> [*]
+EXPIRED --> [*]
+
+note bottom of EXPIRED
+  「已处理请求在过期后仍可读原结果」
+  是查询语义，不是状态回退。
+end note
+
+note bottom of CAPTURED
+  进入 CAPTURED 的唯一条件是
+  CaptureRecord 已在同一事务中成功写入。
+end note
+@enduml

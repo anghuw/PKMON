@@ -1,0 +1,94 @@
+@startuml 答题捕获分析类图
+' 孙虹毅 · 第二阶段分析 · 分析类图（概念层）
+' 本图只表达业务对象与职责，不含 Controller / Repository / 数据库表；技术对象见 design 阶段
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam arrowColor #5B6B7C
+skinparam class {
+  BackgroundColor #F5F8FB
+  BorderColor #6F97B8
+  HeaderBackgroundColor #EAF2F9
+  FontColor #1F2A37
+}
+
+class "User（用户）" as User {
+  userId : 用户标识 «唯一»
+  --
+  收藏概览() : 已收录种类数与捕获数
+}
+
+class "Spawn（遭遇机会）" as Spawn {
+  spawnId : 遭遇标识
+  regionId : 区域业务键 library_entrance
+  speciesId : 物种业务键 siege_lion
+  sourceType : 遭遇来源（开发模拟 / 定位）
+  expiresAt : 有效期至
+  --
+  是否可用(时刻) : 布尔
+}
+
+class "Challenge（问答挑战）" as Challenge {
+  challengeId : 挑战标识
+  status : OPEN / CAPTURED / EXPIRED
+  expiresAt : 有效期至
+  --
+  可否作答(时刻) : 布尔
+}
+
+class "Question（题目）" as Question {
+  questionId : 业务键 hello_world_001
+  questionText : 题干
+  options : 选项 2..4 «optionId + text»
+  correctOptionId : 正确选项 «仅服务端内部»
+}
+
+class "AnswerAttempt（答题请求）" as AnswerAttempt {
+  requestId : 一次业务操作的唯一编号
+  optionId : 所选选项
+  result : CORRECT / WRONG
+  submittedAt : 提交时刻
+}
+
+class "CaptureRecord（捕获记录）" as CaptureRecord {
+  captureRecordId : 收录标识
+  capturedAt : 收录时刻
+}
+
+class "Species（精灵种类）" as Species {
+  speciesId : 业务键 siege_lion
+  name : 名称
+}
+
+User "1" -- "0..*" Spawn : 拥有 >
+User "1" -- "0..*" CaptureRecord : 拥有 >
+Species "1" -- "0..*" Spawn : 被遭遇 <
+Spawn "1" -- "0..*" Challenge : 允许发起 >
+Challenge "1" -- "1" Question : 依据 >
+Challenge "1" -- "0..*" AnswerAttempt : 记录 >
+Challenge "1" -- "0..1" CaptureRecord : 成功时产生 >
+Spawn "1" -- "0..1" CaptureRecord : 同一用户至多一次 >
+
+note bottom of Spawn
+  遭遇机会不等于奖励。
+  同一 Spawn 对同一 User
+  至多一条 CaptureRecord。
+end note
+
+note right of AnswerAttempt
+  同 requestId 同内容：幂等，返回原结果。
+  同 requestId 不同内容：冲突，不改原记录。
+end note
+
+note bottom of Question
+  对外只返回 optionId 与 text，
+  不返回 correctOptionId。
+end note
+
+note bottom of Challenge
+  WRONG 是作答结果，不是挑战状态；
+  答错不改变 status，仍为 OPEN。
+end note
+@enduml
