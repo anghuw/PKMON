@@ -2,8 +2,8 @@
 作者：孙虹毅
 本人分支：design/sunhongyi-stage2
 成果提交号（完整）：23d4957aaa1f36d245f5c0a2f2e5471abaf0cae8
-状态：仅个人分支
-主线合并提交号：未合入，暂不填
+状态：已合入 main
+主线合并提交号：b6dcea5d157e71b95f940ab95e414ac45f766550（快进合并，原 d847572）
 
 一、文件路径
   docs/stage2/members/sunhongyi/analysis/analysis.txt
