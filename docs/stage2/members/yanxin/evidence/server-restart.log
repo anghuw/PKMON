@@ -1,0 +1,22 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-10-22T22:51:06.428+08:00  INFO 57376 --- [PKMon-stage1-demo] [           main] edu.pkmon.demo.PkmonApplication          : Starting PkmonApplication v0.1.0 using Java 17.0.20.1 with PID 57376 (C:\Users\taoye\Desktop\软件工程\tmp\pkmon-yanxin-analysis-source\server\target\pkmon-server-0.1.0.jar started by taoye in C:\Users\taoye\Desktop\软件工程\tmp\pkmon-yanxin-analysis-source)
+2026-10-22T22:51:06.432+08:00  INFO 57376 --- [PKMon-stage1-demo] [           main] edu.pkmon.demo.PkmonApplication          : No active profile set, falling back to 1 default profile: "default"
+2026-10-22T22:51:07.674+08:00  INFO 57376 --- [PKMon-stage1-demo] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 57876 (http)
+2026-10-22T22:51:07.687+08:00  INFO 57376 --- [PKMon-stage1-demo] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-22T22:51:07.688+08:00  INFO 57376 --- [PKMon-stage1-demo] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-10-22T22:51:07.737+08:00  INFO 57376 --- [PKMon-stage1-demo] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-10-22T22:51:07.738+08:00  INFO 57376 --- [PKMon-stage1-demo] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1246 ms
+2026-10-22T22:51:08.215+08:00  INFO 57376 --- [PKMon-stage1-demo] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 57876 (http) with context path '/'
+2026-10-22T22:51:08.236+08:00  INFO 57376 --- [PKMon-stage1-demo] [           main] edu.pkmon.demo.PkmonApplication          : Started PkmonApplication in 2.389 seconds (process running for 2.886)
+2026-10-22T22:51:08.758+08:00  INFO 57376 --- [PKMon-stage1-demo] [.1-57876-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-22T22:51:08.759+08:00  INFO 57376 --- [PKMon-stage1-demo] [.1-57876-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-22T22:51:08.760+08:00  INFO 57376 --- [PKMon-stage1-demo] [.1-57876-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
