@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="1000" height="650" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1000 650" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="1000" height="650"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-650)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="0" width="1000" height="650" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="35" y="535" width="100" height="25" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<rect x="35" y="310" width="260" height="225" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="115.0" y="506" style="font-family: CJK; font-size: 20px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1012) scale(1,-1)">账号与权限</text>
+			<path d="M 35,488 L 295,488 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="50" y="460" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,920) scale(1,-1)">User / AuthSession</text>
+			<text x="50" y="437" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,874) scale(1,-1)">有效身份与会话规则</text>
+			<text x="50" y="414" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,828) scale(1,-1)">文档：闫昕analysis/</text>
+			<rect x="370" y="535" width="100" height="25" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<rect x="370" y="310" width="260" height="225" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="450.0" y="506" style="font-family: CJK; font-size: 20px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1012) scale(1,-1)">自习与遭遇</text>
+			<path d="M 370,488 L 630,488 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="385" y="460" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,920) scale(1,-1)">StudyTask / Region</text>
+			<text x="385" y="437" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,874) scale(1,-1)">LocationSample / 驻留规则</text>
+			<text x="385" y="414" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,828) scale(1,-1)">文档：董欣毓analysis/</text>
+			<rect x="705" y="535" width="100" height="25" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<rect x="705" y="310" width="260" height="225" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="785.0" y="506" style="font-family: CJK; font-size: 20px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1012) scale(1,-1)">捕获与收藏</text>
+			<path d="M 705,488 L 965,488 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="720" y="460" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,920) scale(1,-1)">Spawn / Challenge / Question</text>
+			<text x="720" y="437" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,874) scale(1,-1)">AnswerAttempt</text>
+			<text x="720" y="414" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,828) scale(1,-1)">CaptureRecord / Species</text>
+			<text x="720" y="391" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,782) scale(1,-1)">文档：孙虹毅analysis/</text>
+			<path d="M 370,470 L 295,470 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 295,470 L 304.904918,465.215379 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 295,470 L 304.904918,474.784621 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="303.0" y="490" style="font-family: CJK; font-size: 15px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,980) scale(1,-1)">使用身份</text>
+			<path d="M 630,360 L 705,360 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 705,360 L 695.095082,364.784621 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 705,360 L 695.095082,355.215379 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="638.0" y="386" style="font-family: CJK; font-size: 15px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,772) scale(1,-1)">生成遭遇</text>
+			<path d="M 835,310 L 835,170 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 835,170 L 165,170 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 165,170 L 165,310 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 165,310 L 160.215379,300.095082 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 165,310 L 169.784621,300.095082 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="313.0" y="190" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,380) scale(1,-1)">捕获与收藏使用账号身份；账号包不依赖奖励业务</text>
+			<text x="228.0" y="75" style="font-family: CJK; font-size: 17px;fill: rgb(39%,47%,52%); stroke:none;" transform="translate(0,150) scale(1,-1)">分析包表达业务模型组织；数据库、网络与框架装配在下一轮设计细化。</text>
+		</g>
+	</g>
+</svg>

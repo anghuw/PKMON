@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="1000" height="650" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1000 650" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="1000" height="650"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-650)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="0" width="1000" height="650" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="270" y="50" width="530" height="580" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 2; fill: none; fill-rule: evenodd;"/>
+			<text x="426.03076171875" y="601" style="font-family: CJK; font-size: 23px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1202) scale(1,-1)">PKMon（整个应用）</text>
+			<circle cx="100" cy="565" r="12" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<path d="M 100,553 L 100,513 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 78,539 L 122,539 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 100,513 L 82,485 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 100,513 L 118,485 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="57.5" y="458" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,916) scale(1,-1)">未登录访客</text>
+			<circle cx="100" cy="320" r="12" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<path d="M 100,308 L 100,268 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 78,294 L 122,294 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 100,268 L 82,240 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 100,268 L 118,240 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="57.5" y="213" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,426) scale(1,-1)">已登录玩家</text>
+			<circle cx="925" cy="460" r="12" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<path d="M 925,448 L 925,408 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 903,434 L 947,434 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 925,408 L 907,380 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 925,408 L 943,380 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="874.0" y="353" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,706) scale(1,-1)">手机定位服务</text>
+			<circle cx="925" cy="152" r="12" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<path d="M 925,140 L 925,100 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 903,126 L 947,126 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 925,100 L 907,72 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 925,100 L 943,72 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="882.5" y="45" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,90) scale(1,-1)">开发演示者</text>
+			<ellipse cx="535.0" cy="550.0" rx="200.0" ry="25.0" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="499.0" y="544" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1088) scale(1,-1)">注册账号</text>
+			<ellipse cx="535.0" cy="485.0" rx="200.0" ry="25.0" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="517.0" y="479" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,958) scale(1,-1)">登录</text>
+			<ellipse cx="535.0" cy="420.0" rx="200.0" ry="25.0" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="454.0" y="414" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,828) scale(1,-1)">自习任务与精灵遭遇</text>
+			<ellipse cx="535.0" cy="355.0" rx="200.0" ry="25.0" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="454.0" y="349" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,698) scale(1,-1)">答题捕获与精灵收录</text>
+			<ellipse cx="535.0" cy="290.0" rx="200.0" ry="25.0" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="463.0" y="284" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,568) scale(1,-1)">查看本人收集成果</text>
+			<ellipse cx="535.0" cy="225.0" rx="200.0" ry="25.0" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="481.0" y="219" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,438) scale(1,-1)">查看本人资料</text>
+			<ellipse cx="535.0" cy="160.0" rx="200.0" ry="25.0" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="499.0" y="154" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,308) scale(1,-1)">退出登录</text>
+			<ellipse cx="535.0" cy="95.0" rx="200.0" ry="25.0" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="418.5888671875" y="89" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,178) scale(1,-1)">创建模拟遭遇（仅dev/test）</text>
+			<path d="M 125,525 L 335,550 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 125,525 L 335,485 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 125,280 L 335,420 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 125,280 L 335,355 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 125,280 L 335,290 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 125,280 L 335,225 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 125,280 L 335,160 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 901,420 L 735,420 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 901,112 L 735,95 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+		</g>
+	</g>
+</svg>
