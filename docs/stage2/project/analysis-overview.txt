@@ -5,8 +5,10 @@
 3. use-cases.csv：两个核心用况及账号用况索引。
 4. glossary.csv：身份、任务、遭遇、挑战和收录的统一含义。
 5. decisions.csv：旧需求与最新指南/实现的差异处理。
-6. backlog.csv / kanban.csv：本地任务及证据快照；未创建远程看板，不表示所有人已接受新增承诺。
+6. backlog.csv / kanban.csv：仓库内任务及证据快照；未创建远程看板，不表示所有人已接受新增承诺。
 7. ../members/yanxin/analysis/analysis.txt：完整正文、账号模型、图说明与依赖。
 8. ../members/yanxin/evidence/：真实源码构建与运行记录。
 孙虹毅已交领域材料仍保留在本人目录，本文不复制改名。
 其他成员按个人分工交付，未见远程证据的工作不推定完成。按既定DDL推进，不新增工时登记或集中评审/合并环节。
+
+本轮成果已于2026-10-23合入main。先读../members/yanxin/handoffs/analysis.txt取得真实成果版本和直接交接说明。
