@@ -1,0 +1,32 @@
+执行者：本次Codex工具；材料责任人：闫昕。不能记为闫昕已经手工跑完。
+日期：2026-10-22（北京时间）
+输入仓库：https://github.com/saltyfish8210/PKMON
+固定提交：380225791e4b0791509be90e58368036519fe540
+执行位置：工作区 tmp/pkmon-yanxin-analysis-source（独立检出，非旧PKMON工作目录）
+源码验证前、后：git status --porcelain均为空；未修改源码。
+输入上传已确认：远程main已有攻城狮版源码与孙虹毅的交接；本机旧origin/main信息没有用作最新状态。
+
+1. 构建与现有测试
+JDK 17.0.20.1；Maven 3.9.11；Spring Boot 3.5.7。
+工作区便携工具执行：mvn -o -Dmaven.repo.local=<工作区>/.tools/m2 -f <固定检出>/server/pom.xml test package
+实际：BUILD SUCCESS；23 tests，0 failures，0 errors，0 skipped。
+原DemoServiceTest为8项，新CaptureServiceTest为15项；原始报告在本目录。
+JAR由当前固定源码生成，未用旧运行包代替。
+
+2. 启动及HTTP核验
+命令语义：java -jar server/target/pkmon-server-0.1.0.jar --server.address=127.0.0.1 --server.port=<空闲临时端口>
+未占用默认4180；所有运行进程均由本次创建并在检查后关闭，未终止其他服务。
+默认配置一次、重启一次、关闭开发身份配置一次；13条检查及实际响应见http-checks.json。
+关闭替身命令增加：--pkmon.capture.dev-user-header=false --pkmon.capture.dev-spawn-enabled=false
+首次受限执行环境不允许Java回环连接，启动失败；保留server-sandbox-failure.log。随后获得环境授权后同一源码正常启动；该失败不是产品启动缺陷。
+核心结果：健康200；账号登录404；缺少开发身份401；开发遭遇与捕获内存链路200；另一开发身份读挑战404；收录1次，重启后0次；关闭替身后50301。
+模拟身份仅analysis-user-a/analysis-user-b。临时身份与种子数据不能证明真实账号隔离或真实校园定位。
+
+3. 客户端与设备
+源码pubspec要求Dart ^3.13.5；仓库README列Flutter 3.47.6 / Dart 3.13.5。
+本机已有Flutter 3.35.7 / Dart 3.9.2，版本不满足，因此本次未执行当前客户端构建、flutter analyze/test、Web页面或Android真机验收。
+未修改pubspec、锁文件或升级本机SDK；没有用旧银杏书灵版本作为当前版本运行证据。
+
+4. 尚未验证
+注册/登录/退出真实业务、口令散列与会话持久化、真实数据库重启保留、真实GPS/驻留、最新客户端联调、性能及耗电均未验证。
+尚无本人分析成果提交号和main合入号。输入源码SHA不能填为成果SHA。

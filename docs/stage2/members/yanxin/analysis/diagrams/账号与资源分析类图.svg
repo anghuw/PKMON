@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="1000" height="650" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1000 650" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="1000" height="650"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-650)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="0" width="1000" height="650" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="55" y="375" width="360" height="205" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="190.4541015625" y="551" style="font-family: CJK; font-size: 20px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1102) scale(1,-1)">User 用户</text>
+			<path d="M 55,533 L 415,533 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="70" y="505" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1010) scale(1,-1)">userId / username / nickname</text>
+			<text x="70" y="482" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,964) scale(1,-1)">credentialVerifier / createdAt</text>
+			<text x="70" y="459" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,918) scale(1,-1)">验证凭据() / 读取基本资料()</text>
+			<rect x="585" y="375" width="360" height="205" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="663.076171875" y="551" style="font-family: CJK; font-size: 20px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1102) scale(1,-1)">AuthSession 登录会话</text>
+			<path d="M 585,533 L 945,533 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="600" y="505" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1010) scale(1,-1)">sessionId / tokenVerifier</text>
+			<text x="600" y="482" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,964) scale(1,-1)">issuedAt / expiresAt / revokedAt</text>
+			<text x="600" y="459" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,918) scale(1,-1)">判断有效(时刻) / 撤销(时刻)</text>
+			<path d="M 415,480 L 585,480 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 585,480 L 575.095082,484.784621 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 585,480 L 575.095082,475.215379 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="434.72216796875" y="493" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,986) scale(1,-1)">1</text>
+			<text x="538.29345703125" y="493" style="font-family: CJK; font-size: 18px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,986) scale(1,-1)">0..*</text>
+			<text x="484.0" y="455" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,910) scale(1,-1)">持有</text>
+			<rect x="40" y="95" width="260" height="120" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="78.359375" y="186" style="font-family: CJK; font-size: 20px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,372) scale(1,-1)">StudyTask 自习任务</text>
+			<path d="M 40,168 L 300,168 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="55" y="140" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,280) scale(1,-1)">引用：董欣毓</text>
+			<path d="M 235,375 L 235,295 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 235,295 L 170,295 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 170,295 L 170,215 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 170,215 L 174.784621,224.904918 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 170,215 L 165.215379,224.904918 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="177.054931640625" y="229" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,458) scale(1,-1)">0..*</text>
+			<rect x="370" y="95" width="260" height="120" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="425.2978515625" y="186" style="font-family: CJK; font-size: 20px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,372) scale(1,-1)">Spawn 遭遇机会</text>
+			<path d="M 370,168 L 630,168 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="385" y="140" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,280) scale(1,-1)">引用：孙虹毅</text>
+			<path d="M 235,375 L 235,295 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 235,295 L 500,295 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 500,295 L 500,215 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 500,215 L 504.784621,224.904918 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 500,215 L 495.215379,224.904918 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="507.054931640625" y="229" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,458) scale(1,-1)">0..*</text>
+			<rect x="700" y="95" width="260" height="120" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="715.2685546875" y="186" style="font-family: CJK; font-size: 20px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,372) scale(1,-1)">CaptureRecord 捕获记录</text>
+			<path d="M 700,168 L 960,168 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="715" y="140" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,280) scale(1,-1)">引用：孙虹毅</text>
+			<path d="M 235,375 L 235,295 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 235,295 L 830,295 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 830,295 L 830,215 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 830,215 L 834.784621,224.904918 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 830,215 L 825.215379,224.904918 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="837.054931640625" y="229" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,458) scale(1,-1)">0..*</text>
+			<text x="210.015380859375" y="344" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,688) scale(1,-1)">1</text>
+			<text x="346.5" y="315" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,630) scale(1,-1)">每项资源只属于一个用户</text>
+			<text x="270.5" y="42" style="font-family: CJK; font-size: 17px;fill: rgb(39%,47%,52%); stroke:none;" transform="translate(0,84) scale(1,-1)">普通关联；无继承、聚合或组合。退出会话不删除业务历史。</text>
+		</g>
+	</g>
+</svg>

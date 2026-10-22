@@ -1,0 +1,181 @@
+{
+  "sourceCommit": "380225791e4b0791509be90e58368036519fe540",
+  "sourceCleanBefore": true,
+  "date": "2026-10-22",
+  "timezone": "Asia/Shanghai",
+  "tests": [
+    {
+      "name": "健康入口",
+      "passed": true,
+      "detail": {
+        "http": 200,
+        "response": "hello world\nPKMon Spring Boot backend is running.\n"
+      }
+    },
+    {
+      "name": "登录接口尚不存在",
+      "passed": true,
+      "detail": {
+        "http": 404
+      }
+    },
+    {
+      "name": "新接口缺少开发身份拒绝访问",
+      "passed": true,
+      "detail": {
+        "http": 401,
+        "response": {
+          "code": 40101,
+          "message": "未提供 X-Dev-User 请求头（开发期临时身份，接入认证后失效）",
+          "data": null
+        }
+      }
+    },
+    {
+      "name": "开发遭遇可调用",
+      "passed": true,
+      "detail": {
+        "http": 200,
+        "sourceType": "DEV_SIMULATED"
+      }
+    },
+    {
+      "name": "新捕获接口取题",
+      "passed": true,
+      "detail": {
+        "http": 200,
+        "speciesName": "攻城狮",
+        "fields": [
+          "challengeId",
+          "spawnId",
+          "speciesId",
+          "speciesName",
+          "questionId",
+          "questionText",
+          "options",
+          "expiresAt"
+        ]
+      }
+    },
+    {
+      "name": "不同开发身份读取他人挑战被拒",
+      "passed": true,
+      "detail": {
+        "http": 404,
+        "note": "开发身份可伪造，此结果不证明真实认证隔离。"
+      }
+    },
+    {
+      "name": "答错不发奖",
+      "passed": true,
+      "detail": {
+        "http": 200,
+        "result": "WRONG"
+      }
+    },
+    {
+      "name": "答对产生内存收录",
+      "passed": true,
+      "detail": {
+        "http": 200,
+        "result": "CORRECT",
+        "persistent": false
+      }
+    },
+    {
+      "name": "同请求重发结果一致",
+      "passed": true,
+      "detail": {
+        "http": 200,
+        "sameResult": true
+      }
+    },
+    {
+      "name": "内存收藏查询",
+      "passed": true,
+      "detail": {
+        "http": 200,
+        "response": {
+          "code": 0,
+          "message": "ok",
+          "data": {
+            "collectedSpeciesCount": 1,
+            "totalSpeciesCount": 1,
+            "captureCount": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "旧演示会话与模拟探索仍可用",
+      "passed": true,
+      "detail": {
+        "http": 200,
+        "note": "临时演示会话，不是注册用户。"
+      }
+    },
+    {
+      "name": "重启后内存记录消失",
+      "passed": true,
+      "detail": {
+        "http": 200,
+        "response": {
+          "code": 0,
+          "message": "ok",
+          "data": {
+            "collectedSpeciesCount": 0,
+            "totalSpeciesCount": 1,
+            "captureCount": 0
+          }
+        },
+        "conclusion": "真实持久化未实现"
+      }
+    },
+    {
+      "name": "关闭替身后认证未就绪明确拒绝",
+      "passed": true,
+      "detail": {
+        "http": 503,
+        "response": {
+          "code": 50301,
+          "message": "认证上下文尚未接入",
+          "data": null
+        }
+      }
+    }
+  ],
+  "unitTests": [
+    {
+      "name": "edu.pkmon.capture.service.CaptureServiceTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "edu.pkmon.demo.DemoServiceTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "unitTestTotal": 23,
+  "javaVersion": "openjdk version \"17.0.20.1\" 2026-08-18 LTS\nOpenJDK Runtime Environment Corretto-17.0.20.12.1 (build 17.0.20.1+12-LTS)\nOpenJDK 64-Bit Server VM Corretto-17.0.20.12.1 (build 17.0.20.1+12-LTS, mixed mode, sharing)",
+  "flutter": {
+    "frameworkVersion": "3.35.7",
+    "channel": "[user-branch]",
+    "repositoryUrl": "unknown source",
+    "frameworkRevision": "adc901062556672b4138e18a4dc62a4be8f4b3c2",
+    "frameworkCommitDate": "2025-10-21 14:16:03 -0400",
+    "engineRevision": "035316565ad77281a75305515e4682e6c4c6f7ca",
+    "engineCommitDate": "2025-10-21 14:28:01.000Z",
+    "engineContentHash": "6b24e1b529bc46df7ff397667502719a2a8b6b72",
+    "engineBuildDate": "2025-10-21 23:21:13.472",
+    "dartSdkVersion": "3.9.2",
+    "devToolsVersion": "2.48.0",
+    "flutterVersion": "3.35.7"
+  },
+  "clientBuild": "NOT_RUN: local Dart 3.9.2 does not satisfy source sdk ^3.13.5; no source constraint changed.",
+  "sourceCleanAfter": true
+}
