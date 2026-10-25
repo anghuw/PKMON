@@ -1,0 +1,7 @@
+﻿图名,可编辑源文件,导出文件,说明
+系统用况总览,analysis/diagrams/系统用况总览.svg,analysis/diagrams/系统用况总览.png,analysis.txt中对应章节
+账号与资源分析类图,analysis/diagrams/账号与资源分析类图.svg,analysis/diagrams/账号与资源分析类图.png,analysis.txt中对应章节
+登录顺序图,analysis/diagrams/登录顺序图.svg,analysis/diagrams/登录顺序图.png,analysis.txt中对应章节
+身份与资源归属顺序图,analysis/diagrams/身份与资源归属顺序图.svg,analysis/diagrams/身份与资源归属顺序图.png,analysis.txt中对应章节
+登录会话状态图,analysis/diagrams/登录会话状态图.svg,analysis/diagrams/登录会话状态图.png,analysis.txt中对应章节
+业务分析包图,analysis/diagrams/业务分析包图.svg,analysis/diagrams/业务分析包图.png,analysis.txt中对应章节

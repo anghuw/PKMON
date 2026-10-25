@@ -1,0 +1,27 @@
+阶段：analysis（2026-10-20至10-24）
+作者：闫昕
+截止：2026-10-25 04:00（北京时间）；接收方10/25白天读取。
+状态：闫昕已阅读并确认采用；分析成果已于2026-10-23通过PR #1合入main。
+任务分支：design/yanxin-stage2（已通过 GitHub 网页从输入主线创建）
+分析成果版本（36份正文、图表、证据和清单，不含本交接记录）：243c4564866a29bb53761d3ef5f0bd37dff52f74
+main成果合入提交号：4cc967ad52b845a878a82c0d15d0f958016d5dc9
+合入记录：https://github.com/saltyfish8210/PKMON/pull/1
+所用输入源码提交：380225791e4b0791509be90e58368036519fe540
+孙虹毅分析输入：该SHA中的docs/stage2/members/sunhongyi/analysis/；已读取，保留原作者。
+董欣毓/胡豪等依赖：该输入版本未见对应analysis交付；依既定10/25交接继续读取，不声称已确认其结论。
+
+材料路径：
+docs/stage2/members/yanxin/analysis/analysis.txt（完整说明）
+docs/stage2/members/yanxin/analysis/diagrams/（6张SVG图源及PNG）
+docs/stage2/members/yanxin/analysis/questions.csv（问题/影响/主责/下一交接）
+docs/stage2/members/yanxin/evidence/（环境、原始测试摘要、启动日志、HTTP检查）
+docs/stage2/members/yanxin/ai/（真实使用记录、原始正文、用户委托核查与交接的真实记录）
+docs/stage2/project/（范围、功能、术语、用况、差异、Backlog和本地Kanban）
+
+读者：余星晨读账号交互；冉昕霖读凭据/错误/路径差异；胡豪读账号数据与配置需求；孙虹毅读当前用户端口与Q01/Q03/Q07回应；李宗晏读验收与事实证据；任务身份共享规则供赵冠钧、董欣毓使用。
+实际验证：固定源码后端打包成功；现有23项单测通过；13项HTTP/重启事实核验符合当前实现预期。验证由工具执行，原始结果见evidence/。
+真实性：定位与开发遭遇为模拟；当前身份和仓储为替身；真实认证、持久化、当前客户端构建和Android真机均未完成验证。
+不足与后续：见questions.csv；下一轮在10/29 04:00交账号详细设计；不把设计候选或开发头当正式登录方案。
+交接读取方式：更新到含本记录的main后，先读analysis/analysis.txt与analysis/questions.csv，再按本人依赖读project/清单及图表。成果合入后追加本记录及状态更新；记录自身的提交号以Git历史为准，不循环填写自身SHA。
+完整性核对：36份成果文件的Git对象哈希逐一匹配本地，6张图均含SVG与PNG；本次未变更游戏源码或其他成员材料。
+后续状态说明：首次AI输出保留生成时原文；当前确认意见以ai/本人采纳记录.txt为准。其余成员状态是10月22日输入版本快照，按10/25既定交接更新，不凭计划推定完成。

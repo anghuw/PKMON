@@ -1,0 +1,69 @@
+@startuml 自习交互顺序图
+' 赵冠钧 · 第二阶段分析 · 顺序图
+' 正常路径 + 权限拒绝 + 断网关键异常
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam sequenceArrowThickness 1.5
+skinparam lifelineStrategy solid
+skinparam ParticipantPadding 12
+
+actor 玩家 as P
+participant "自习任务界面\nStudyPage" as UI
+participant "LocationProvider" as LP
+participant "任务服务/FakeStudyApi\n（董欣毓端口）" as API
+
+== 正常：开始并累计至触发 ==
+P -> UI : 选择区域并开始自习
+UI -> API : 创建任务(regionId, requestId, locationSource)
+API --> UI : taskId, status=WAITING, ...
+UI -> UI : 说明位置用途
+UI -> LP : 检查并请求定位权限
+LP --> UI : 已授权
+UI -> LP : start()
+loop 采样周期
+  LP --> UI : LocationSample
+  UI -> API : 上传样本(sampleId, 坐标, 精度, sampledAt, ...)
+  API --> UI : status, effectiveSeconds, sampleAccepted, ...
+  UI --> P : 刷新状态条（只展示返回值）
+end
+API --> UI : status=TRIGGERED, spawnId
+UI --> P : 显示遭遇入口
+P -> UI : 进入答题捕获
+note right of UI
+  捕获结算见孙虹毅模块
+  本边界不本地发奖
+end note
+
+== 异常：权限拒绝 ==
+P -> UI : 开始自习
+UI -> API : 创建任务
+API --> UI : WAITING
+UI -> LP : 请求定位权限
+LP --> UI : 拒绝 / 永久拒绝
+UI --> P : 解释用途 + 去设置/重试
+note over UI, API
+  不上传样本，不生成奖励
+  可结束任务或保持 WAITING 待恢复授权
+end note
+
+== 异常：断网上传失败 ==
+LP --> UI : LocationSample
+UI -> API : 上传样本
+API --> UI : 网络失败/超时
+UI --> P : 连接问题，请重试
+UI -> API : GET current（结果待确认时）
+API --> UI : 真实任务状态或仍失败
+note over UI
+  本地不得判 TRIGGERED
+  不得伪造 spawnId
+end note
+
+== 结束：释放订阅 ==
+P -> UI : 结束任务
+UI -> API : end(taskId, requestId)
+API --> UI : status=ENDED
+UI -> LP : stop()
+LP --> UI : 已释放
+@enduml

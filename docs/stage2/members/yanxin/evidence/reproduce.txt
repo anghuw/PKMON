@@ -1,0 +1,12 @@
+复现本次验证（使用已保存工作的固定版本检出，逐条执行）
+1. 确认git rev-parse HEAD等于environment.txt中的完整SHA，git status --short为空。
+2. 在server目录使用本机JDK17+和Maven3.9+执行 mvn test package。首次可能需要下载依赖；记录真实结果。
+3. 另开终端，以本机空闲端口运行 java -jar target/pkmon-server-0.1.0.jar --server.address=127.0.0.1 --server.port=本机空闲端口。
+4. 访问GET /test/hello；POST /api/v1/auth/login应为当前版本404；GET /api/v1/collection/summary不带身份应为401。
+5. 仅在本机默认开发配置，带合成X-Dev-User建立开发遭遇（regionId=library_entrance, speciesId=siege_lion）。用响应中的spawnId请求/api/v1/capture/challenge。
+6. 使用返回challengeId和新的UUID requestId提交B选项，应为WRONG；使用另一个requestId提交A，应为CORRECT。精确重发同一个正确请求，应返回原结果。
+7. 查询collection/summary，应有1条；换另一合成X-Dev-User查询原挑战，应为404。
+8. 只关闭自己启动的服务，再启动同一JAR，原合成用户收藏数为0，证明当前内存实现不能持久化。
+9. 关闭自己服务，再加 --pkmon.capture.dev-user-header=false --pkmon.capture.dev-spawn-enabled=false 启动。相同查询应为50301。
+10. 保存证据，Ctrl+C关闭自己的服务。不得清空数据库或终止未知进程。本检查只使用临时内存数据。
+注意：这些预期描述的是固定输入版本，未来正确实现认证和持久化后，相应预期必须改变，不要把本清单当永久验收测试。

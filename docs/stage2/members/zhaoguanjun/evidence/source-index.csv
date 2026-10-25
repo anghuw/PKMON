@@ -1,0 +1,18 @@
+路径,用途,本轮结论
+client/lib/widgets/task_sheet.dart,自习任务 UI 原型,仅开始/结束/快进；无权限与五态
+client/lib/core/location_provider.dart,定位抽象,仅 DemoLocationProvider 地点字符串
+client/lib/features/map_page.dart,地图与任务 chip,「模拟自习进行中」示意
+client/lib/features/home_shell.dart,任务布尔与探索演示,本地 _task 开关
+client/lib/features/profile_page.dart,个人页任务说明,写明未接真实 GPS/权限
+client/android/app/src/main/AndroidManifest.xml,Android 权限,仅 INTERNET
+client/pubspec.yaml,客户端依赖,无定位/权限插件
+docs/stage2/members/yanxin/analysis/analysis.txt,共享用况与账号边界,§6 自习基线已读
+docs/stage2/members/yanxin/handoffs/analysis.txt,闫昕交接,输入/成果 SHA 已读
+docs/stage2/members/sunhongyi/analysis/analysis.txt,捕获分析结构参考,不复制改名
+docs/stage2/project/decisions.csv,暂停保留决策,已采用
+docs/stage2/project/glossary.csv,统一名称,LocationSample 主责含赵冠钧
+docs/stage2/project/backlog.csv,任务状态,定位与任务交互分析原为未见主线交付
+开发文档/03_软件需求说明书.md,UC-03/06/07/08,旧离开清零已被 decisions 覆盖
+开发文档/04_UI设计说明.md,定位失败/权限被拒/任务状态条,界面目标依据
+开发文档/06_高德地图接入指南.md,AMap 接入,本轮分析不实施
+docs/stage2/members/dongxinyu/,驻留领域分析,目录不存在

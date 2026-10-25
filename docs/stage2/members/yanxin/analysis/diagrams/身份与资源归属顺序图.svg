@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="1000" height="650" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1000 650" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="1000" height="650"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-650)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="0" width="1000" height="650" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(100%,100%,100%); fill-rule: evenodd;"/>
+			<rect x="5" y="580" width="184" height="48" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="53.0" y="598" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1196) scale(1,-1)">玩家</text>
+			<path d="M 70,580 L 70,60 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<rect x="253" y="580" width="184" height="48" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="281.45751953125" y="598" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1196) scale(1,-1)">PKMon（边界）</text>
+			<path d="M 345,580 L 345,60 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<rect x="533" y="580" width="184" height="48" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="550.803466796875" y="598" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1196) scale(1,-1)">会话 : AuthSession</text>
+			<path d="M 625,580 L 625,60 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<rect x="808" y="580" width="184" height="48" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,95%,96%); fill-rule: evenodd;"/>
+			<text x="835.46142578125" y="598" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1196) scale(1,-1)">资源 : Challenge</text>
+			<path d="M 900,580 L 900,60 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 70,550 L 345,550 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<polygon points="345 550, 333.9473 554.673, 333.9473 545.327" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(13%,23%,29%); fill-rule: evenodd;"/>
+			<text x="144.44140625" y="562" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1124) scale(1,-1)">1 凭据与资源标识</text>
+			<path d="M 345,495 L 625,495 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<polygon points="625 495, 613.9473 499.673, 613.9473 490.327" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(13%,23%,29%); fill-rule: evenodd;"/>
+			<text x="429.94140625" y="507" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,1014) scale(1,-1)">2 确认有效身份</text>
+			<path d="M 625,440 L 345,440 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 345,440 L 354.904918,435.215379 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 345,440 L 354.904918,444.784621 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="430.09375" y="452" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,904) scale(1,-1)">3 userId / 失败</text>
+			<rect x="15" y="85" width="960" height="320" style="stroke: rgb(39%,47%,52%); stroke-linecap: butt; stroke-width: 1; fill: none; fill-rule: evenodd;"/>
+			<text x="35" y="384" style="font-family: CJK; font-size: 17px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,768) scale(1,-1)">alt</text>
+			<text x="130" y="384" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,768) scale(1,-1)">[身份无效]</text>
+			<path d="M 345,350 L 70,350 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 70,350 L 79.904918,345.215379 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 70,350 L 79.904918,354.784621 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="159.05859375" y="362" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,724) scale(1,-1)">401 拒绝访问</text>
+			<path d="M 15,320 L 975,320 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<text x="130" y="294" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,588) scale(1,-1)">[身份有效]</text>
+			<path d="M 345,255 L 900,255 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<polygon points="900 255, 888.9473 259.673, 888.9473 250.327" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1; fill: rgb(13%,23%,29%); fill-rule: evenodd;"/>
+			<text x="567.44140625" y="267" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,534) scale(1,-1)">4 查询本人资源</text>
+			<path d="M 900,200 L 345,200 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 345,200 L 354.904918,195.215379 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 345,200 L 354.904918,204.784621 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="551.2890625" y="212" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,424) scale(1,-1)">5 本人内容 / 不存在</text>
+			<path d="M 345,140 L 70,140 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8; stroke-dasharray: 7, 5;"/>
+			<path d="M 70,140 L 79.904918,135.215379 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<path d="M 70,140 L 79.904918,144.784621 Z" style="stroke: rgb(13%,23%,29%); stroke-linecap: butt; stroke-width: 1.8;"/>
+			<text x="146.21484375" y="152" style="font-family: CJK; font-size: 16px;fill: rgb(13%,23%,29%); stroke:none;" transform="translate(0,304) scale(1,-1)">6 结果 / 统一404</text>
+		</g>
+	</g>
+</svg>

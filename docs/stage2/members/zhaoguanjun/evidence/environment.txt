@@ -1,0 +1,36 @@
+执行者：本次 Cursor 编码助手；材料责任人：赵冠钧。不能记为赵冠钧已经手工跑完全部命令。
+日期：2026-10-25（北京时间）
+输入仓库：本地 D:\Desktop\PKMON（远程预期 saltyfish8210/PKMON）
+输入提交（分析开始时 main）：a9abdb4413eeff8b10470f979c6847ddb8e18d10
+工作分支：analysis/zhaoguanjun-stage2
+执行位置：上述本地仓库工作目录；未另做独立 detach 检出。
+
+1. 工具版本（本机实测）
+Git：可用（git rev-parse / status 成功）。
+Java：openjdk 21.0.11 2026-04-21 LTS（Microsoft build）；java -jar 可运行。
+Maven：本轮未执行 mvn test（分析交付不依赖后端重建；闫昕已有固定版本证据可引用）。
+Flutter：本机 PowerShell 中 flutter 命令不可用（CommandNotFoundException）；未执行 flutter pub get / analyze / test / run。
+PlantUML：临时下载 plantuml-1.2024.8.jar 至 members/zhaoguanjun/.tools/（仅本机渲染图，不纳入成果提交）。
+Graphviz：PlantUML -version 报告 dot 2.44.1，Installation seems OK。
+
+2. 源码事实核对（只读）
+已核对路径见 source-index.csv。
+结论摘要：
+- task_sheet.dart 为本地布尔任务原型，无五态与累计秒；
+- location_provider.dart 仅 DemoLocationProvider 字符串地点；
+- AndroidManifest 仅 INTERNET，无定位权限声明；
+- server 无 study/tasks 业务包。
+未修改 client/ 或 server/ 业务源码。
+
+3. 客户端与设备
+未构建当前 Web/APK；无 Android 真机定位权限验证。
+未使用浏览器模拟位置充当真机证据。
+仓库 pubspec 要求 Dart ^3.13.5；本机未验证该 SDK。
+
+4. 图表渲染
+命令语义：java -jar .tools/plantuml.jar -charset UTF-8 -tpng analysis/diagrams/*.puml
+实际：四张 PNG 已生成于 analysis/diagrams/，与同名 .puml 并存。
+
+5. 尚未验证 / 不可声称通过
+真实 GPS、权限拒绝恢复、前台服务、任务 HTTP、驻留计时与董欣毓定稿对齐、完整奖励链路。
+成果提交号与 main 合入号在 handoffs/analysis.txt 填写；输入源码 SHA 不能填为成果 SHA。
