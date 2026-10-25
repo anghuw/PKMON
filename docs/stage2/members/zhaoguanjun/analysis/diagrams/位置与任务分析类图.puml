@@ -1,0 +1,87 @@
+@startuml 位置与任务分析类图
+' 赵冠钧 · 第二阶段分析 · 分析类图
+' 仅业务概念；无 Controller / Repository / 表
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam class {
+  BackgroundColor #F5F8FB
+  BorderColor #6F97D8
+  FontColor #1F2A37
+  HeaderBackgroundColor #E8F0F8
+}
+skinparam arrowColor #5B6B7C
+
+class LocationSample <<被动>> {
+  sampleId : 标识 [1]
+  latitude : 实数 [1]
+  longitude : 实数 [1]
+  accuracyMeters : 实数 [1]
+  sampledAt : 时刻 [1]
+  coordinateSystem : 文本 [1]
+  source : 文本 [1] {GPS|SIMULATED}
+  --
+  约束：绑定本人 taskId
+  精度>50m 不合格
+  真实坐标不作公共展示
+}
+
+class StudyTask <<引用·董欣毓>> {
+  taskId : 标识 [1]
+  regionId : 文本 [1]
+  status : 枚举 [1]
+  pauseReason : 枚举 [0..1]
+  effectiveSeconds : 整数 [1]
+  requiredSeconds : 整数 [1]
+  spawnId : 标识 [0..1]
+  serverTime : 时刻 [1]
+  --
+  status: WAITING|DWELLING|
+  PAUSED|TRIGGERED|ENDED
+  pauseReason: OUTSIDE|NO_SIGNAL
+}
+
+class Region <<引用>> {
+  regionId : 文本 [1]
+  显示名 : 文本 [1]
+  --
+  例 library_entrance
+  进入/退出半径归属驻留规则
+}
+
+class "StudyPage\n（边界）" as StudyPage <<边界>> {
+  职责：开始/结束意图
+  展示任务状态字段
+  申请权限与订阅
+  跳转捕获入口
+  --
+  不负责发奖与判题
+  不本地决定累计权威
+}
+
+class "LocationProvider\n（端口）" as LocationProvider <<端口>> {
+  start()
+  stop()
+  样本流 / 错误通道
+  --
+  真实与模拟同字段
+  退出页必须释放订阅
+}
+
+StudyPage --> LocationProvider : 订阅/释放
+StudyPage --> StudyTask : 展示（只读响应）
+LocationProvider ..> LocationSample : 产生
+LocationSample "0..*" --> "1" StudyTask : 属于本人任务
+StudyTask --> Region : 目标区域
+
+note bottom of LocationSample
+  本人主责对象
+  操作被动：由采集边界创建并提交判定
+end note
+
+note bottom of StudyTask
+  不在本目录重写完整状态机
+  转换细节以董欣毓分析为准
+end note
+@enduml
