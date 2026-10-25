@@ -1,0 +1,22 @@
+AI辅助分析记录（本次真实过程）
+材料责任人：赵冠钧；日期：2026-10-25。
+工具：Cursor 桌面编码助手（Composer 系列；精确模型快照、Token 和费用未提供）。课程专用 AI 报告工具本次未单独使用。
+
+最初任务：用户提供《赵冠钧开发指南.pdf》，说明当前需提交「自习任务界面、定位权限、暂停恢复及异常流程分析」。经 Plan 模式确认范围为第二阶段 analysis 文档交付（非真实 GPS 编码），用户确认执行该计划。
+
+上下文：赵冠钧开发指南第7/14/16/18页；闫昕 analysis §6 与 handoffs；孙虹毅 analysis 结构；project/decisions.csv、glossary、backlog；client 现有 task_sheet / DemoLocationProvider / AndroidManifest；候选 StudyApi 字段。未收集真实用户账号、口令或真实校园轨迹。
+
+过程：
+1. 读取 PDF 与仓库现状，确认 docs/stage2/members/zhaoguanjun/ 尚不存在，董欣毓目录缺失。
+2. 建立个人分支 analysis/zhaoguanjun-stage2。
+3. 撰写 analysis.txt，覆盖界面、权限、暂停恢复与异常、LocationSample。
+4. 编写 4 张 PlantUML 图并用本机临时 plantuml.jar 导出 PNG（.tools 不纳入提交）。
+5. 填写 questions.csv、evidence、diagram-index、ai 与 handoffs；更新 project backlog/kanban 证据状态一行。
+
+输出原文快照：ai/首次生成分析正文.txt（与当时 analysis.txt 一致的快照）。
+本人采纳：见 ai/本人采纳记录.txt。
+实际耗时：以工具会话为准；个人投入时间未测量，不编造效率百分比。费用与 token 未提供。
+
+风险与反思：截止 10/25 04:00 已过，材料为补交；不得把原型 UI 写成已验收；不得把无真机写成权限已验证；StudyTask 状态机不得冒充董欣毓定稿；PlantUML 工具 jar 不得误提交进仓库。
+
+隐私：交付文件无真实密码、token 或真实定位轨迹。

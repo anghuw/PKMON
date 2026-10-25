@@ -1,0 +1,73 @@
+@startuml 任务展示与定位订阅状态图
+' 赵冠钧 · 第二阶段分析 · 状态图
+' 界面侧订阅与展示状态；不替代 StudyTask 服务端五态
+!pragma layout smetana
+skinparam defaultFontName "Microsoft YaHei"
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam state {
+  BackgroundColor #F5F8FB
+  BorderColor #6F97B8
+  FontColor #1F2A37
+}
+
+[*] --> UNAUTHORIZED : 打开自习 / 开始任务需定位
+
+state UNAUTHORIZED {
+  UNAUTHORIZED : 入口/展示位置用途说明
+  UNAUTHORIZED : 内部：等待用户授权或去设置
+}
+
+state LISTENING {
+  LISTENING : 入口：LocationProvider.start
+  LISTENING : 内部：上传样本并刷新服务端返回状态
+  LISTENING : 出口：可保留展示字段
+}
+
+state DEGRADED {
+  DEGRADED : 入口：展示定位不可用/去设置/重试
+  DEGRADED : 内部：不假装采样成功
+}
+
+state SHOWING_PAUSED {
+  SHOWING_PAUSED : 入口：展示 PAUSED + pauseReason
+  SHOWING_PAUSED : 内部：保留 effectiveSeconds 展示
+  SHOWING_PAUSED : 不本地清零、不补算
+}
+
+state SHOWING_TRIGGERED {
+  SHOWING_TRIGGERED : 入口：展示 spawnId 遭遇入口
+  SHOWING_TRIGGERED : 内部：可跳转捕获；不再期待二次触发
+}
+
+state STOPPED {
+  STOPPED : 入口/出口：LocationProvider.stop
+  STOPPED : 任务 ENDED 或离开页面
+}
+
+UNAUTHORIZED --> LISTENING : 用户授权且定位服务可用
+UNAUTHORIZED --> DEGRADED : 拒绝 / 永久拒绝 / 位置服务关闭
+LISTENING --> DEGRADED : 权限丢失 / 服务关闭 / 前台订阅失效
+LISTENING --> SHOWING_PAUSED : 任务响应 status=PAUSED
+LISTENING --> SHOWING_TRIGGERED : 任务响应 status=TRIGGERED
+LISTENING --> STOPPED : 结束任务或离开页面
+SHOWING_PAUSED --> LISTENING : 恢复授权且继续采样\n等待服务端重新确认进入
+SHOWING_PAUSED --> DEGRADED : 定位再次不可用
+SHOWING_PAUSED --> SHOWING_TRIGGERED : 服务端返回 TRIGGERED\n（罕见：恢复后达阈值）
+SHOWING_PAUSED --> STOPPED : 结束任务
+SHOWING_TRIGGERED --> STOPPED : 结束或跳转后返回结束
+DEGRADED --> LISTENING : 重试成功 / 从设置返回且已授权
+DEGRADED --> STOPPED : 用户放弃并结束
+STOPPED --> [*]
+
+note right of LISTENING
+  与服务端对照：
+  WAITING / DWELLING
+  → 通常处于 LISTENING
+end note
+
+note right of SHOWING_PAUSED
+  pauseReason:
+  OUTSIDE / NO_SIGNAL
+end note
+@enduml
